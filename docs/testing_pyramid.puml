@@ -1,0 +1,28 @@
+@startuml testing_pyramid
+title Рисунок 3.23 – Пирамида тестирования
+
+skinparam shadowing false
+skinparam backgroundColor white
+
+' Используем salt для создания пирамиды
+salt
+{
+{T
++                    E2E Tests
++              (Сквозное тестирование)
++
++           Integration Tests
++      (Интеграционное тестирование)
++
++                Unit Tests
++          (Модульное тестирование)
+}
+}
+
+legend bottom
+  **E2E Tests** - тестирование всего приложения от начала до конца
+  **Integration Tests** - тестирование взаимодействия между компонентами
+  **Unit Tests** - тестирование отдельных методов и классов
+end legend
+
+@enduml

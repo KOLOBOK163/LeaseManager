@@ -1,0 +1,138 @@
+<svg width="800" height="1400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Заголовок -->
+  <text x="400" y="30" font-size="18" font-weight="bold" text-anchor="middle" fill="#333">
+    Рисунок 3.24 – Пользовательский сценарий тестирования приложения
+  </text>
+  
+  <!-- Определение стилей для стрелок -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#333" />
+    </marker>
+  </defs>
+  
+  <!-- Начало -->
+  <ellipse cx="400" cy="80" rx="120" ry="30" fill="#4CAF50" stroke="#333" stroke-width="2"/>
+  <text x="400" y="88" font-size="14" font-weight="bold" text-anchor="middle" fill="white">НАЧАЛО</text>
+  
+  <!-- Стрелка -->
+  <line x1="400" y1="110" x2="400" y2="140" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- 1. Авторизация -->
+  <rect x="300" y="140" width="200" height="60" rx="5" fill="#2196F3" stroke="#333" stroke-width="2"/>
+  <text x="400" y="165" font-size="13" font-weight="bold" text-anchor="middle" fill="white">1. Авторизация</text>
+  <text x="400" y="185" font-size="11" text-anchor="middle" fill="white">admin / admin123</text>
+  
+  <line x1="400" y1="200" x2="400" y2="230" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- 2. Регистрация клиента -->
+  <rect x="300" y="230" width="200" height="60" rx="5" fill="#2196F3" stroke="#333" stroke-width="2"/>
+  <text x="400" y="255" font-size="13" font-weight="bold" text-anchor="middle" fill="white">2. Регистрация клиента</text>
+  <text x="400" y="275" font-size="11" text-anchor="middle" fill="white">ИНН, реквизиты</text>
+  
+  <line x1="400" y1="290" x2="400" y2="320" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- 3. Проведение скоринга -->
+  <rect x="300" y="320" width="200" height="60" rx="5" fill="#FF9800" stroke="#333" stroke-width="2"/>
+  <text x="400" y="345" font-size="13" font-weight="bold" text-anchor="middle" fill="white">3. Проведение скоринга</text>
+  <text x="400" y="365" font-size="11" text-anchor="middle" fill="white">Расчёт балла 0-100</text>
+  
+  <!-- Разветвление -->
+  <line x1="400" y1="380" x2="250" y2="430" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="400" y1="380" x2="550" y2="430" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- Одобрен -->
+  <rect x="150" y="430" width="200" height="60" rx="5" fill="#4CAF50" stroke="#333" stroke-width="2"/>
+  <text x="250" y="455" font-size="13" font-weight="bold" text-anchor="middle" fill="white">Одобрен</text>
+  <text x="250" y="475" font-size="11" text-anchor="middle" fill="white">Балл ≥ 70</text>
+  
+  <!-- Отклонён -->
+  <rect x="450" y="430" width="200" height="60" rx="5" fill="#F44336" stroke="#333" stroke-width="2"/>
+  <text x="550" y="455" font-size="13" font-weight="bold" text-anchor="middle" fill="white">Отклонён</text>
+  <text x="550" y="475" font-size="11" text-anchor="middle" fill="white">Балл &lt; 50</text>
+  
+  <!-- Отклонён -> Завершение -->
+  <line x1="550" y1="490" x2="550" y2="530" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <ellipse cx="550" cy="560" rx="80" ry="30" fill="#757575" stroke="#333" stroke-width="2"/>
+  <text x="550" y="568" font-size="13" font-weight="bold" text-anchor="middle" fill="white">ЗАВЕРШЕНИЕ</text>
+  
+  <!-- Одобрен -> продолжение -->
+  <line x1="250" y1="490" x2="250" y2="540" stroke="#333" stroke-width="2"/>
+  <line x1="250" y1="540" x2="400" y2="540" stroke="#333" stroke-width="2"/>
+  <line x1="400" y1="540" x2="400" y2="570" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- 4. Добавление оборудования -->
+  <rect x="300" y="570" width="200" height="60" rx="5" fill="#2196F3" stroke="#333" stroke-width="2"/>
+  <text x="400" y="595" font-size="13" font-weight="bold" text-anchor="middle" fill="white">4. Добавление</text>
+  <text x="400" y="615" font-size="13" font-weight="bold" text-anchor="middle" fill="white">оборудования</text>
+  
+  <line x1="400" y1="630" x2="400" y2="660" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- 5. Создание договора -->
+  <rect x="300" y="660" width="200" height="60" rx="5" fill="#2196F3" stroke="#333" stroke-width="2"/>
+  <text x="400" y="685" font-size="13" font-weight="bold" text-anchor="middle" fill="white">5. Создание договора</text>
+  <text x="400" y="705" font-size="11" text-anchor="middle" fill="white">ЛД-2026-XXX</text>
+  
+  <line x1="400" y1="720" x2="400" y2="750" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- 6. Генерация графика -->
+  <rect x="300" y="750" width="200" height="60" rx="5" fill="#9C27B0" stroke="#333" stroke-width="2"/>
+  <text x="400" y="775" font-size="13" font-weight="bold" text-anchor="middle" fill="white">6. Генерация графика</text>
+  <text x="400" y="795" font-size="11" text-anchor="middle" fill="white">Аннуитетные платежи</text>
+  
+  <line x1="400" y1="810" x2="400" y2="840" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- 7. Активация договора -->
+  <rect x="300" y="840" width="200" height="60" rx="5" fill="#4CAF50" stroke="#333" stroke-width="2"/>
+  <text x="400" y="865" font-size="13" font-weight="bold" text-anchor="middle" fill="white">7. Активация договора</text>
+  <text x="400" y="885" font-size="11" text-anchor="middle" fill="white">DRAFT → ACTIVE</text>
+  
+  <line x1="400" y1="900" x2="400" y2="930" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- 8. Регистрация платежей -->
+  <rect x="300" y="930" width="200" height="60" rx="5" fill="#2196F3" stroke="#333" stroke-width="2"/>
+  <text x="400" y="955" font-size="13" font-weight="bold" text-anchor="middle" fill="white">8. Регистрация</text>
+  <text x="400" y="975" font-size="13" font-weight="bold" text-anchor="middle" fill="white">платежей</text>
+  
+  <line x1="400" y1="990" x2="400" y2="1020" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- 9. Мониторинг просрочек -->
+  <rect x="300" y="1020" width="200" height="60" rx="5" fill="#FF5722" stroke="#333" stroke-width="2"/>
+  <text x="400" y="1045" font-size="13" font-weight="bold" text-anchor="middle" fill="white">9. Мониторинг</text>
+  <text x="400" y="1065" font-size="13" font-weight="bold" text-anchor="middle" fill="white">просрочек</text>
+  
+  <line x1="400" y1="1080" x2="400" y2="1110" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- 10. Экспорт отчётов -->
+  <rect x="300" y="1110" width="200" height="60" rx="5" fill="#00BCD4" stroke="#333" stroke-width="2"/>
+  <text x="400" y="1135" font-size="13" font-weight="bold" text-anchor="middle" fill="white">10. Экспорт отчётов</text>
+  <text x="400" y="1155" font-size="11" text-anchor="middle" fill="white">Excel (XLSX)</text>
+  
+  <line x1="400" y1="1170" x2="400" y2="1200" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- Завершение -->
+  <ellipse cx="400" cy="1230" rx="120" ry="30" fill="#4CAF50" stroke="#333" stroke-width="2"/>
+  <text x="400" y="1238" font-size="14" font-weight="bold" text-anchor="middle" fill="white">ЗАВЕРШЕНИЕ</text>
+  
+  <!-- Легенда -->
+  <g transform="translate(50, 1280)">
+    <text x="0" y="0" font-size="12" font-weight="bold" fill="#333">Легенда:</text>
+    <rect x="0" y="10" width="30" height="20" fill="#2196F3" stroke="#333"/>
+    <text x="35" y="25" font-size="11" fill="#333">Основные действия</text>
+    
+    <rect x="200" y="10" width="30" height="20" fill="#FF9800" stroke="#333"/>
+    <text x="235" y="25" font-size="11" fill="#333">Проверка/Анализ</text>
+    
+    <rect x="400" y="10" width="30" height="20" fill="#4CAF50" stroke="#333"/>
+    <text x="435" y="25" font-size="11" fill="#333">Успешное завершение</text>
+    
+    <rect x="600" y="10" width="30" height="20" fill="#F44336" stroke="#333"/>
+    <text x="635" y="25" font-size="11" fill="#333">Отклонение</text>
+  </g>
+  
+  <!-- Примечания -->
+  <g transform="translate(50, 1330)">
+    <text x="0" y="0" font-size="11" fill="#666">* Сценарий покрывает основной путь работы с системой от регистрации клиента до экспорта отчётов</text>
+    <text x="0" y="15" font-size="11" fill="#666">* Альтернативные пути: ручная проверка скоринга (балл 50-69), регистрация инцидентов</text>
+  </g>
+</svg>

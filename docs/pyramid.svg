@@ -1,0 +1,54 @@
+<svg width="600" height="500" xmlns="http://www.w3.org/2000/svg">
+  <!-- Заголовок -->
+  <text x="300" y="30" font-size="18" font-weight="bold" text-anchor="middle" fill="#333">
+    Рисунок 3.23 – Пирамида тестирования
+  </text>
+  
+  <!-- E2E Tests (вершина) -->
+  <polygon points="300,80 200,180 400,180" fill="#FF6B6B" stroke="#333" stroke-width="2"/>
+  <text x="300" y="140" font-size="14" font-weight="bold" text-anchor="middle" fill="white">E2E Tests</text>
+  <text x="300" y="160" font-size="12" text-anchor="middle" fill="white">5-10%</text>
+  
+  <!-- Integration Tests (середина) -->
+  <polygon points="200,180 150,280 450,280 400,180" fill="#4ECDC4" stroke="#333" stroke-width="2"/>
+  <text x="300" y="220" font-size="14" font-weight="bold" text-anchor="middle" fill="white">Integration Tests</text>
+  <text x="300" y="240" font-size="12" text-anchor="middle" fill="white">15-20%</text>
+  
+  <!-- Unit Tests (основание) -->
+  <polygon points="150,280 100,380 500,380 450,280" fill="#95E1D3" stroke="#333" stroke-width="2"/>
+  <text x="300" y="320" font-size="14" font-weight="bold" text-anchor="middle" fill="white">Unit Tests</text>
+  <text x="300" y="340" font-size="12" text-anchor="middle" fill="white">70-80%</text>
+  
+  <!-- Характеристики справа -->
+  <g transform="translate(520, 100)">
+    <text x="0" y="0" font-size="12" font-weight="bold" fill="#333">Характеристики:</text>
+    
+    <!-- E2E -->
+    <rect x="0" y="10" width="15" height="15" fill="#FF6B6B"/>
+    <text x="20" y="22" font-size="11" fill="#333">Медленные</text>
+    <text x="20" y="35" font-size="11" fill="#333">Дорогие</text>
+    <text x="20" y="48" font-size="11" fill="#333">Мало тестов</text>
+    
+    <!-- Integration -->
+    <rect x="0" y="70" width="15" height="15" fill="#4ECDC4"/>
+    <text x="20" y="82" font-size="11" fill="#333">Средние</text>
+    <text x="20" y="95" font-size="11" fill="#333">Умеренные</text>
+    
+    <!-- Unit -->
+    <rect x="0" y="120" width="15" height="15" fill="#95E1D3"/>
+    <text x="20" y="132" font-size="11" fill="#333">Быстрые</text>
+    <text x="20" y="145" font-size="11" fill="#333">Дешёвые</text>
+    <text x="20" y="158" font-size="11" fill="#333">Много тестов</text>
+  </g>
+  
+  <!-- Примеры тестов -->
+  <g transform="translate(50, 400)">
+    <text x="0" y="0" font-size="12" font-weight="bold" fill="#333">Примеры в проекте LeaseManager:</text>
+    
+    <text x="0" y="20" font-size="11" fill="#333">• Unit: ScoringServiceTest, InnValidatorTest, BankAccountValidatorTest</text>
+    <text x="0" y="35" font-size="11" fill="#333">• Integration: ApplicationTests, Repository Tests</text>
+    <text x="0" y="50" font-size="11" fill="#333">• E2E: Полный сценарий создания договора и регистрации платежей</text>
+    
+    <text x="0" y="75" font-size="11" font-weight="bold" fill="#333">Соотношение: 45 Unit / 12 Integration / 3 E2E = 60 тестов</text>
+  </g>
+</svg>

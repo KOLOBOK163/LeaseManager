@@ -1,0 +1,32 @@
+<svg width="700" height="600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Заголовок -->
+  <text x="350" y="30" font-size="18" font-weight="bold" text-anchor="middle" fill="#333">
+    Рисунок 3.23 – Пирамида тестирования
+  </text>
+
+  <!-- E2E Tests (вершина) -->
+  <polygon points="350,100 250,200 450,200" fill="#FFCDD2" stroke="#333" stroke-width="2"/>
+  <text x="350" y="155" font-size="14" font-weight="bold" text-anchor="middle" fill="#333">E2E Tests</text>
+  <text x="350" y="175" font-size="12" text-anchor="middle" fill="#666">(Сквозное тестирование)</text>
+
+  <!-- Integration Tests (середина) -->
+  <polygon points="250,200 150,350 550,350 450,200" fill="#BBDEFB" stroke="#333" stroke-width="2"/>
+  <text x="350" y="265" font-size="14" font-weight="bold" text-anchor="middle" fill="#333">Integration Tests</text>
+  <text x="350" y="285" font-size="12" text-anchor="middle" fill="#666">(Интеграционное тестирование)</text>
+
+  <!-- Unit Tests (основание) -->
+  <polygon points="150,350 50,500 650,500 550,350" fill="#C8E6C9" stroke="#333" stroke-width="2"/>
+  <text x="350" y="415" font-size="14" font-weight="bold" text-anchor="middle" fill="#333">Unit Tests</text>
+  <text x="350" y="435" font-size="12" text-anchor="middle" fill="#666">(Модульное тестирование)</text>
+
+  <!-- Описания -->
+  <text x="350" y="550" font-size="11" text-anchor="middle" fill="#666">
+    E2E - тестирование всего приложения от начала до конца
+  </text>
+  <text x="350" y="565" font-size="11" text-anchor="middle" fill="#666">
+    Integration - тестирование взаимодействия между компонентами
+  </text>
+  <text x="350" y="580" font-size="11" text-anchor="middle" fill="#666">
+    Unit - тестирование отдельных методов и классов
+  </text>
+</svg>
