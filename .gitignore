@@ -31,3 +31,17 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Backups
+*.bak
+*.backup
+/backups/
+/backup/
+
+# Test data
+*.sql
+!src/main/resources/db/migration/*.sql
+
+# logs and temp files
+*.log
+/logs/
