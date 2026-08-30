@@ -5,9 +5,6 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-/**
- * Результат скоринга клиента
- */
 @Entity
 @Table(name = "client_scoring")
 @Builder
@@ -55,14 +52,11 @@ public class ClientScoring {
     @Column(name = "rejection_reason", length = 500)
     private String rejectionReason;
 
-    /**
-     * Статусы скоринга
-     */
     public enum ScoringStatus {
         PENDING,        // Ожидает проверки
-        AUTO_APPROVED,  // Автоматически одобрен
-        MANUAL_REVIEW,  // Требует ручной проверки
-        APPROVED,       // Одобрен менеджером
-        REJECTED        // Отклонён
+        AUTO_APPROVED,
+        MANUAL_REVIEW,
+        APPROVED,
+        REJECTED
     }
 }

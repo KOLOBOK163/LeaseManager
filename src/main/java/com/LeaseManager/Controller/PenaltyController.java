@@ -9,9 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.util.List;
 
-/**
- * Контроллер для управления пенями за просрочку
- */
 @RestController
 @RequestMapping("/api/penalties")
 public class PenaltyController {
@@ -22,9 +19,6 @@ public class PenaltyController {
         this.penaltyService = penaltyService;
     }
 
-    /**
-     * Рассчитать пеню для графика платежей
-     */
     @GetMapping("/calculate/schedule/{scheduleId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<BigDecimal> calculatePenalty(@PathVariable Long scheduleId) {
@@ -32,9 +26,6 @@ public class PenaltyController {
         return ResponseEntity.ok(penalty);
     }
 
-    /**
-     * Получить общую сумму пени по договору
-     */
     @GetMapping("/total/contract/{contractId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<BigDecimal> getTotalPenalty(@PathVariable Long contractId) {
@@ -42,9 +33,6 @@ public class PenaltyController {
         return ResponseEntity.ok(totalPenalty);
     }
 
-    /**
-     * Создать платёж для пени
-     */
     @PostMapping("/create/schedule/{scheduleId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<Payment> createPenaltyPayment(@PathVariable Long scheduleId) {
@@ -52,9 +40,6 @@ public class PenaltyController {
         return ResponseEntity.ok(payment);
     }
 
-    /**
-     * Получить все платежи-пени по договору
-     */
     @GetMapping("/contract/{contractId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<List<Payment>> getPenaltyPayments(@PathVariable Long contractId) {
@@ -62,9 +47,6 @@ public class PenaltyController {
         return ResponseEntity.ok(payments);
     }
 
-    /**
-     * Получить сумму неоплаченных пени по договору
-     */
     @GetMapping("/unpaid/contract/{contractId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<BigDecimal> getUnpaidPenalty(@PathVariable Long contractId) {
@@ -72,9 +54,6 @@ public class PenaltyController {
         return ResponseEntity.ok(unpaidPenalty);
     }
 
-    /**
-     * Получить текущую ставку пени
-     */
     @GetMapping("/rate")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<BigDecimal> getPenaltyRate() {
@@ -82,9 +61,6 @@ public class PenaltyController {
         return ResponseEntity.ok(rate);
     }
 
-    /**
-     * Установить ставку пени (только для администратора)
-     */
     @PutMapping("/rate")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> setPenaltyRate(@RequestParam BigDecimal rate) {

@@ -21,9 +21,6 @@ public class ExportController {
         this.excelExportService = excelExportService;
     }
 
-    /**
-     * Экспорт договора в Excel
-     */
     @GetMapping("/contract/{contractId}/excel")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<ByteArrayResource> exportContractToExcel(@PathVariable Long contractId) {

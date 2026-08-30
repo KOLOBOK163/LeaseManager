@@ -7,9 +7,6 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
-/**
- * Сервис для отправки email-уведомлений
- */
 @Service
 public class EmailService {
 
@@ -27,9 +24,6 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
-    /**
-     * Отправить email
-     */
     public void sendEmail(String to, String subject, String body) {
         if (!emailEnabled) {
             logger.info("Email отправка отключена. Письмо не отправлено: {} -> {}", to, subject);
@@ -51,9 +45,6 @@ public class EmailService {
         }
     }
 
-    /**
-     * Отправить email нескольким получателям
-     */
     public void sendEmailToMultiple(String[] recipients, String subject, String body) {
         if (!emailEnabled) {
             logger.info("Email отправка отключена. Письма не отправлены: {}", (Object) recipients);

@@ -28,9 +28,6 @@ public class AuditController {
         this.auditService = auditService;
     }
 
-    /**
-     * Получить все записи аудита с пагинацией
-     */
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> getAllLogs(
@@ -52,9 +49,6 @@ public class AuditController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Получить записи аудита с фильтрами
-     */
     @GetMapping("/filter")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> getLogsWithFilters(
@@ -82,9 +76,7 @@ public class AuditController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Получить записи аудита по пользователю
-     */
+
     @GetMapping("/user/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<AuditLogResponse>> getLogsByUser(@PathVariable Long userId) {
@@ -95,9 +87,6 @@ public class AuditController {
         return ResponseEntity.ok(responses);
     }
 
-    /**
-     * Получить записи аудита по сущности
-     */
     @GetMapping("/entity/{entityType}/{entityId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<List<AuditLogResponse>> getLogsByEntity(

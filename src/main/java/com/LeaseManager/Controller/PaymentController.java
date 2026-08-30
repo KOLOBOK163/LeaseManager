@@ -4,8 +4,7 @@ import com.LeaseManager.Dto.Payment.RegisterPaymentRequest;
 import com.LeaseManager.Dto.Payment.PaymentResponse;
 import com.LeaseManager.Dto.PaymentDto;
 import com.LeaseManager.Entity.Payment;
-import com.LeaseManager.Service.PaymentService;
-import jakarta.persistence.EntityNotFoundException;
+import com.LeaseManager.Service.Payment.PaymentService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,21 +48,13 @@ public class PaymentController {
 
     @PutMapping("/{id}/pay")
     public ResponseEntity<PaymentResponse> markPaymentAsPaid(@PathVariable Long id) {
-        try {
-            Payment payment = paymentService.markAsPaid(id);
-            return ResponseEntity.ok(paymentService.toResponse(payment));
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        Payment payment = paymentService.markAsPaid(id);
+        return ResponseEntity.ok(paymentService.toResponse(payment));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePayment(@PathVariable Long id) {
-        try {
             paymentService.delete(id);
             return ResponseEntity.noContent().build();
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
     }
 }

@@ -29,9 +29,6 @@ public class InsuranceController {
         this.equipmentRepository = equipmentRepository;
     }
 
-    /**
-     * Добавить страхование к договору
-     */
     @PostMapping("/contract/{contractId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<Contract> addInsurance(
@@ -41,9 +38,6 @@ public class InsuranceController {
         return ResponseEntity.ok(contract);
     }
 
-    /**
-     * Обновить страхование
-     */
     @PutMapping("/contract/{contractId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<Contract> updateInsurance(
@@ -53,9 +47,6 @@ public class InsuranceController {
         return ResponseEntity.ok(contract);
     }
 
-    /**
-     * Получить информацию о страховании
-     */
     @GetMapping("/contract/{contractId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<InsuranceDto> getInsurance(@PathVariable Long contractId) {
@@ -63,9 +54,6 @@ public class InsuranceController {
         return ResponseEntity.ok(insurance);
     }
 
-    /**
-     * Рассчитать страховую премию для оборудования
-     */
     @GetMapping("/calculate-premium/equipment/{equipmentId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<BigDecimal> calculatePremium(@PathVariable Long equipmentId) {
@@ -75,9 +63,6 @@ public class InsuranceController {
         return ResponseEntity.ok(premium);
     }
 
-    /**
-     * Рассчитать ежемесячную премию
-     */
     @GetMapping("/calculate-monthly-premium")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<BigDecimal> calculateMonthlyPremium(@RequestParam BigDecimal annualPremium) {
@@ -85,9 +70,6 @@ public class InsuranceController {
         return ResponseEntity.ok(monthlyPremium);
     }
 
-    /**
-     * Получить договоры с истекающей страховкой
-     */
     @GetMapping("/expiring")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<List<Contract>> getExpiringInsurance(@RequestParam(defaultValue = "30") int daysAhead) {
@@ -95,9 +77,6 @@ public class InsuranceController {
         return ResponseEntity.ok(contracts);
     }
 
-    /**
-     * Получить договоры с просроченной страховкой
-     */
     @GetMapping("/expired")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<List<Contract>> getExpiredInsurance() {

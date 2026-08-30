@@ -1,4 +1,4 @@
-package com.LeaseManager.Service.Impl;
+package com.LeaseManager.Service.Client;
 
 import com.LeaseManager.Dto.Client.ClientResponse;
 import com.LeaseManager.Dto.Client.CreateClientRequest;
@@ -8,7 +8,6 @@ import com.LeaseManager.Entity.Contract;
 import com.LeaseManager.Mapper.EntityMapper;
 import com.LeaseManager.Repository.ClientRepository;
 import com.LeaseManager.Repository.ContractRepository;
-import com.LeaseManager.Service.ClientService;
 import com.LeaseManager.Service.Scoring.ScoringService;
 import com.LeaseManager.Service.Validation.InnValidator;
 import com.LeaseManager.Service.Validation.BankAccountValidator;
@@ -71,14 +70,11 @@ public class ClientServiceImpl implements ClientService {
     @Override
     @Transactional
     public ClientResponse createClient(CreateClientRequest request) {
-        // Валидация ИНН
         if (request.getInn() != null && !request.getInn().isEmpty()) {
             if (!innValidator.isValid(request.getInn())) {
                 throw new IllegalArgumentException(innValidator.getErrorMessage(request.getInn()));
             }
         }
-
-        // Валидация банковских реквизитов
         if (request.getBankAccount() != null && !request.getBankAccount().isEmpty()) {
             if (request.getBik() == null || request.getBik().isEmpty()) {
                 throw new IllegalArgumentException("БИК обязателен при указании расчётного счёта");
@@ -121,11 +117,9 @@ public class ClientServiceImpl implements ClientService {
 
         Client savedClient = clientRepository.save(client);
 
-        // Автоматический скоринг для нового клиента
         try {
             scoringService.performScoring(savedClient);
         } catch (Exception e) {
-            // Логируем ошибку, но не прерываем создание клиента
             System.err.println("Ошибка при автоматическом скоринге клиента: " + e.getMessage());
         }
 
@@ -138,7 +132,6 @@ public class ClientServiceImpl implements ClientService {
         Client client = clientRepository.findById(clientId)
                 .orElseThrow(() -> new EntityNotFoundException("Клиент не найден с id: " + clientId));
 
-        // Валидация ИНН только если он изменился
         if (request.getInn() != null && !request.getInn().isEmpty()) {
             String oldInn = client.getInn() != null ? client.getInn().trim() : "";
             String newInn = request.getInn().trim();
@@ -150,7 +143,6 @@ public class ClientServiceImpl implements ClientService {
             }
         }
 
-        // Валидация банковских реквизитов только если они изменились
         if (request.getBankAccount() != null && !request.getBankAccount().isEmpty()) {
             String oldAccount = client.getBankAccount() != null ? client.getBankAccount().trim() : "";
             String newAccount = request.getBankAccount().trim();
@@ -209,8 +201,6 @@ public class ClientServiceImpl implements ClientService {
         if (!clientRepository.existsById(clientId)) {
             throw new EntityNotFoundException("Клиент не найден с id: " + clientId);
         }
-
-        // Проверка наличия договоров
         List<Contract> contracts = contractRepository.findByClientId(clientId);
         if (!contracts.isEmpty()) {
             throw new IllegalStateException("Невозможно удалить клиента, у которого есть договоры");

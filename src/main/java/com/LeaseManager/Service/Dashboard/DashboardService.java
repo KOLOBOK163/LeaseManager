@@ -61,8 +61,7 @@ public class DashboardService {
         LocalDateTime now = LocalDateTime.now();
         List<PaymentSchedule> overdueSchedules = paymentScheduleRepository.findAllByStatus(PaymentScheduleStatus.OVERDUE);
         List<Payment> overduePayments = paymentRepository.findAllByStatus(PaymentStatus.PENDING);
-        
-        // Считаем просроченные платежи
+
         int overdueCount = overdueSchedules.size();
         for (Payment payment : overduePayments) {
             if (payment.getDueDate().isBefore(now)) {

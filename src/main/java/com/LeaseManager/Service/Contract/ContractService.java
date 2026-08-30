@@ -1,10 +1,6 @@
-package com.LeaseManager.Service;
+package com.LeaseManager.Service.Contract;
 
-import com.LeaseManager.Dto.Contract.ChangeContractStatusRequest;
-import com.LeaseManager.Dto.Contract.ContractStatisticsDto;
-import com.LeaseManager.Dto.Contract.CreateContractRequest;
-import com.LeaseManager.Dto.Contract.GeneratePaymentScheduleRequest;
-import com.LeaseManager.Dto.Contract.UpdateContractRequest;
+import com.LeaseManager.Dto.Contract.*;
 import com.LeaseManager.Entity.Client;
 import com.LeaseManager.Entity.Contract;
 import com.LeaseManager.Entity.Equipment;
@@ -43,44 +39,45 @@ public class ContractService {
     }
 
     @Transactional(readOnly = true)
-    public List<Contract> getAllContracts(String status, String search) {
-        // Если есть поисковый запрос, используем поиск
-        if (search != null && !search.isBlank()) {
-            return contractRepository.searchContracts(search);
-        }
+    public List<ContractResponse> getAllContracts(String status, String search) {
 
-        // Иначе фильтруем по статусу или возвращаем все
-        if (status != null && !status.isBlank()) {
+        List<Contract> contracts;
+
+        if (search != null && !search.isBlank()) {
+            contracts = contractRepository.searchContracts(search);
+        } else if (status != null && !status.isBlank()) {
             try {
                 Contract.ContractStatus contractStatus = Contract.ContractStatus.valueOf(status.toUpperCase());
-                return contractRepository.findByStatus(contractStatus);
+                contracts = contractRepository.findByStatus(contractStatus);
             } catch (IllegalArgumentException e) {
-                return contractRepository.findAll();
+                contracts = contractRepository.findAll();
             }
+        } else {
+            contracts = contractRepository.findAll();
         }
-        return contractRepository.findAll();
+        return toResponseList(contracts);
     }
 
     @Transactional(readOnly = true)
-    public Contract getContractById(Long contractId) {
-        return contractRepository.findById(contractId)
+    public ContractResponse getContractById(Long contractId) {
+        Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new EntityNotFoundException("Договор не найден с id: " + contractId));
+        return toResponse(contract);
+
     }
 
     @Transactional
-    public Contract createContract(CreateContractRequest request) {
+    public ContractResponse createContract(CreateContractRequest request) {
         Client client = clientRepository.findById(request.getClientId())
                 .orElseThrow(() -> new EntityNotFoundException("Клиент не найден с id: " + request.getClientId()));
 
         Equipment equipment = equipmentRepository.findById(request.getEquipmentId())
                 .orElseThrow(() -> new EntityNotFoundException("Оборудование не найдено с id: " + request.getEquipmentId()));
 
-        // Проверка доступности оборудования
         if (equipment.getStatus() != EquipmentStatus.AVAILABLE) {
             throw new IllegalStateException("Оборудование недоступно для лизинга. Текущий статус: " + equipment.getStatus());
         }
 
-        // Автоматическая генерация номера договора, если не указан
         String contractNumber = request.getContractNumber();
         if (contractNumber == null || contractNumber.isBlank()) {
             contractNumber = generateContractNumber();
@@ -99,12 +96,9 @@ public class ContractService {
                 .description(request.getDescription())
                 .build();
 
-        return contractRepository.save(contract);
+        return toResponse(contractRepository.save(contract));
     }
 
-    /**
-     * Генерация номера договора в формате ЛД-20xx-0xx
-     */
     private String generateContractNumber() {
         int currentYear = LocalDate.now().getYear();
         String pattern = "ЛД-" + currentYear + "-%";
@@ -114,7 +108,6 @@ public class ContractService {
         int nextNumber = 1;
         if (!existingContracts.isEmpty()) {
             String lastContractNumber = existingContracts.get(0).getContractNumber();
-            // Извлекаем последний номер из формата ЛД-2026-001
             String[] parts = lastContractNumber.split("-");
             if (parts.length == 3) {
                 try {
@@ -129,7 +122,7 @@ public class ContractService {
     }
 
     @Transactional
-    public Contract updateContract(Long contractId, UpdateContractRequest request) {
+    public ContractResponse updateContract(Long contractId, UpdateContractRequest request) {
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new EntityNotFoundException("Договор не найден с id: " + contractId));
 
@@ -149,11 +142,11 @@ public class ContractService {
         contract.setPaymentPeriodMonths(request.getPeriodMonths());
         contract.setDescription(request.getDescription());
 
-        return contractRepository.save(contract);
+        return toResponse(contractRepository.save(contract));
     }
 
     @Transactional
-    public Contract changeStatus(Long contractId, ChangeContractStatusRequest request) {
+    public ContractResponse changeStatus(Long contractId, ChangeContractStatusRequest request) {
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new EntityNotFoundException("Договор не найден с id: " + contractId));
 
@@ -162,23 +155,19 @@ public class ContractService {
 
         contract.setStatus(newStatus);
 
-        // Автоматическое изменение статуса оборудования
         Equipment equipment = contract.getEquipment();
         if (equipment != null) {
-            // При активации договора - оборудование переходит в статус "В лизинге"
             if (newStatus == Contract.ContractStatus.ACTIVE && oldStatus != Contract.ContractStatus.ACTIVE) {
                 equipment.setStatus(EquipmentStatus.LEASED);
                 equipmentRepository.save(equipment);
             }
-            // При завершении или отмене договора - оборудование возвращается в статус "Доступно"
             else if ((newStatus == Contract.ContractStatus.CLOSED || newStatus == Contract.ContractStatus.CANCELLED)
                      && oldStatus == Contract.ContractStatus.ACTIVE) {
                 equipment.setStatus(EquipmentStatus.AVAILABLE);
                 equipmentRepository.save(equipment);
             }
         }
-
-        return contractRepository.save(contract);
+        return toResponse(contractRepository.save(contract));
     }
 
     @Transactional
@@ -189,16 +178,11 @@ public class ContractService {
         contractRepository.deleteById(contractId);
     }
 
-    /**
-     * Генерация графика платежей по договору
-     * Аннуитетные платежи (равные суммы)
-     */
     @Transactional
     public List<PaymentSchedule> generatePaymentSchedule(GeneratePaymentScheduleRequest request) {
         Contract contract = contractRepository.findById(request.getContractId())
                 .orElseThrow(() -> new EntityNotFoundException("Договор не найден с id: " + request.getContractId()));
 
-        // Удаляем существующие графики
         paymentScheduleRepository.deleteByContractId(contract.getId());
 
         Integer periodsObj = request.getPeriods() != null ? request.getPeriods() : contract.getPaymentPeriodMonths();
@@ -276,9 +260,6 @@ public class ContractService {
         return paymentScheduleRepository.findByContractId(contract.getId());
     }
 
-    /**
-     * Получение статистики по договору
-     */
     @Transactional(readOnly = true)
     public ContractStatisticsDto getContractStatistics(Long contractId) {
         Contract contract = contractRepository.findById(contractId)
@@ -311,5 +292,27 @@ public class ContractService {
                 .paidPayments(paidPayments)
                 .overduePayments(overduePayments)
                 .build();
+    }
+
+    private ContractResponse toResponse(Contract contract) {
+        return ContractResponse.builder()
+                .id(contract.getId())
+                .contractNumber(contract.getContractNumber())
+                .clientName(contract.getClient().getFullName())
+                .clientId(contract.getClient().getId())
+                .equipmentId(contract.getEquipment().getId())
+                .totalAmount(contract.getTotalAmount())
+                .interestRate(contract.getInterestRate())
+                .paymentPeriodMonths(contract.getPaymentPeriodMonths())
+                .status(contract.getStatus().name())
+                .startDate(contract.getStartDate())
+                .endDate(contract.getEndDate())
+                .build();
+    }
+
+    private List<ContractResponse> toResponseList(List<Contract> contracts) {
+        return contracts.stream()
+                .map(this::toResponse)
+                .toList();
     }
 }

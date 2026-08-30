@@ -6,9 +6,6 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/**
- * Инцидент с оборудованием (поломка, кража, форс-мажор)
- */
 @Entity
 @Table(name = "equipment_incidents")
 @Builder
@@ -79,51 +76,36 @@ public class EquipmentIncident {
     @JoinColumn(name = "resolved_by", foreignKey = @ForeignKey(name = "fk_incident_resolver"))
     private User resolvedBy;
 
-    /**
-     * Типы инцидентов
-     */
     public enum IncidentType {
-        BREAKDOWN,      // Поломка (естественный износ)
-        DAMAGE,         // Повреждение по вине лизингополучателя
-        THEFT,          // Кража
-        FORCE_MAJEURE,  // Форс-мажор (пожар, наводнение)
-        LOSS            // Утрата
+        BREAKDOWN,
+        DAMAGE,
+        THEFT,
+        FORCE_MAJEURE,
+        LOSS
     }
 
-    /**
-     * Ответственная сторона
-     */
     public enum ResponsibleParty {
-        LESSOR,         // Лизингодатель (гарантийный случай)
-        LESSEE,         // Лизингополучатель (вина клиента)
-        INSURANCE,      // Страховая компания
-        FORCE_MAJEURE,  // Форс-мажор (обе стороны)
-        UNDER_INVESTIGATION // Расследуется
+        LESSOR,
+        LESSEE,
+        INSURANCE,
+        FORCE_MAJEURE,
+        UNDER_INVESTIGATION
     }
 
-    /**
-     * Статусы инцидента
-     */
     public enum IncidentStatus {
-        REPORTED,           // Зарегистрирован
-        UNDER_INVESTIGATION,// Расследуется
-        REPAIR_SCHEDULED,   // Запланирован ремонт
-        IN_REPAIR,          // В ремонте
-        RESOLVED,           // Решён
-        CLOSED,             // Закрыт
-        CANCELLED           // Отменён
+        REPORTED,
+        UNDER_INVESTIGATION,
+        REPAIR_SCHEDULED,
+        IN_REPAIR,
+        RESOLVED,
+        CLOSED,
+        CANCELLED
     }
 
-    /**
-     * Проверка, требуется ли компенсация от лизингополучателя
-     */
     public boolean requiresCompensation() {
         return responsibleParty == ResponsibleParty.LESSEE;
     }
 
-    /**
-     * Проверка, является ли инцидент критическим (кража, утрата)
-     */
     public boolean isCritical() {
         return incidentType == IncidentType.THEFT ||
                incidentType == IncidentType.LOSS ||

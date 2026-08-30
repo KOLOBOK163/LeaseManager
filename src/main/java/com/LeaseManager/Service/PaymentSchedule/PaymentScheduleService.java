@@ -50,7 +50,6 @@ public class PaymentScheduleService {
                 .status(PaymentScheduleStatus.PENDING)
                 .build();
 
-        // Создаём связанный платеж
         Payment payment = Payment.builder()
                 .schedule(schedule)
                 .contract(contract)
@@ -108,7 +107,6 @@ public class PaymentScheduleService {
         LocalDate now = LocalDate.now();
         List<PaymentSchedule> overdueSchedules = paymentScheduleRepository.findAllByStatus(PaymentScheduleStatus.OVERDUE);
 
-        // Дополнительно проверяем просроченные PENDING графики
         List<PaymentSchedule> pendingSchedules = paymentScheduleRepository.findByStatus(PaymentScheduleStatus.PENDING);
         for (PaymentSchedule schedule : pendingSchedules) {
             if (schedule.getPaymentDate().isBefore(now) && !overdueSchedules.contains(schedule)) {
@@ -140,7 +138,6 @@ public class PaymentScheduleService {
 
         schedule.setStatus(PaymentScheduleStatus.PAID);
 
-        // Обновляем все связанные платежи
         schedule.getPayments().forEach(payment -> {
             if (payment.getStatus() == com.LeaseManager.Entity.Payment.PaymentStatus.PENDING) {
                 payment.setStatus(com.LeaseManager.Entity.Payment.PaymentStatus.PAID);
@@ -153,7 +150,6 @@ public class PaymentScheduleService {
 
         PaymentSchedule updated = paymentScheduleRepository.save(schedule);
 
-        // Проверяем и автоматически завершаем договор при полной оплате
         checkAndCompleteContract(updated.getContract());
 
         return PaymentScheduleResponse.builder()
@@ -169,9 +165,6 @@ public class PaymentScheduleService {
                 .build();
     }
 
-    /**
-     * Проверка и автоматическое завершение договора при полной оплате
-     */
     private void checkAndCompleteContract(Contract contract) {
         List<PaymentSchedule> schedules = paymentScheduleRepository.findByContractId(contract.getId());
 
@@ -179,16 +172,13 @@ public class PaymentScheduleService {
             return;
         }
 
-        // Проверяем, все ли графики оплачены
         boolean allPaid = schedules.stream()
                 .allMatch(s -> s.getStatus() == PaymentScheduleStatus.PAID);
 
-        // Если все оплачено и договор активен, завершаем его
         if (allPaid && contract.getStatus() == Contract.ContractStatus.ACTIVE) {
             contract.setStatus(Contract.ContractStatus.CLOSED);
             contractRepository.save(contract);
 
-            // Автоматически возвращаем оборудование в статус AVAILABLE
             Equipment equipment = contract.getEquipment();
             if (equipment != null && equipment.getStatus() == EquipmentStatus.LEASED) {
                 equipment.setStatus(EquipmentStatus.AVAILABLE);
@@ -204,7 +194,6 @@ public class PaymentScheduleService {
 
         schedule.setStatus(PaymentScheduleStatus.CANCELLED);
 
-        // Отменяем все связанные платежи
         schedule.getPayments().forEach(payment -> {
             if (payment.getStatus() != com.LeaseManager.Entity.Payment.PaymentStatus.PAID) {
                 payment.setStatus(com.LeaseManager.Entity.Payment.PaymentStatus.CANCELLED);

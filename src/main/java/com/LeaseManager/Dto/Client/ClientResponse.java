@@ -21,14 +21,12 @@ import java.util.List;
 public class ClientResponse {
     private Long id;
 
-    // Общие поля
     private String fullName;
     private String phoneNumber;
     private String email;
     private Client.ClientType clientType;
     private String inn;
 
-    // Поля для физических лиц
     private String passportSeries;
     private String passportNumber;
     private String passportIssuedBy;
@@ -37,7 +35,6 @@ public class ClientResponse {
     private String registrationAddress;
     private LocalDate birthDate;
 
-    // Поля для юридических лиц
     private String companyName;
     private String kpp;
     private String ogrn;
@@ -45,12 +42,10 @@ public class ClientResponse {
     private String actualAddress;
     private String contactPersonPosition;
 
-    // Банковские реквизиты
     private String bankAccount;
     private String bik;
     private String bankName;
 
-    // Служебные поля
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;
     private List<ContractInfo> contracts;

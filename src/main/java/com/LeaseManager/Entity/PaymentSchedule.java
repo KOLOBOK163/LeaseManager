@@ -10,9 +10,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * График платежей по договору лизинга
- */
 @Entity
 @Table(name = "payment_schedules")
 @Builder
@@ -56,39 +53,24 @@ public class PaymentSchedule {
     @Builder.Default
     private List<Payment> payments = new ArrayList<>();
 
-    /**
-     * Добавление платежа в график
-     */
     public void addPayment(Payment payment) {
         payments.add(payment);
         payment.setSchedule(this);
     }
 
-    /**
-     * Удаление платежа из графика
-     */
     public void removePayment(Payment payment) {
         payments.remove(payment);
         payment.setSchedule(null);
     }
 
-    /**
-     * Проверка наличия частичной оплаты
-     */
     public boolean isPartiallyPaid() {
         return status == PaymentScheduleStatus.PARTIAL;
     }
 
-    /**
-     * Проверка полной оплаты
-     */
     public boolean isFullyPaid() {
         return status == PaymentScheduleStatus.PAID;
     }
 
-    /**
-     * Проверка просрочки
-     */
     public boolean isOverdue() {
         return status == PaymentScheduleStatus.OVERDUE;
     }

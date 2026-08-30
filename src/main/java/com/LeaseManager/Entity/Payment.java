@@ -8,9 +8,6 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/**
- * Платеж по графику лизинговых платежей
- */
 @Entity
 @Table(name = "payments")
 @Builder
@@ -59,45 +56,30 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
 
-    /**
-     * Способы оплаты
-     */
     public enum PaymentMethod {
-        BANK_TRANSFER,  // Безналичный расчёт
-        CASH,           // Наличные
-        CARD            // Банковская карта
+        BANK_TRANSFER,
+        CASH,
+        CARD
     }
 
-    /**
-     * Типы платежей
-     */
     public enum PaymentType {
-        PRINCIPAL,      // Основной долг
-        INTEREST,       // Проценты
-        PENALTY,        // Штраф/пеня
-        ADDITIONAL      // Дополнительные услуги
+        PRINCIPAL,
+        INTEREST,
+        PENALTY,
+        ADDITIONAL
     }
 
-    /**
-     * Статусы платежа
-     */
     public enum PaymentStatus {
-        PENDING,    // Ожидает оплаты
-        PAID,       // Оплачен
-        CANCELLED,  // Отменен
-        PARTIAL     // Частично оплачен
+        PENDING,
+        PAID,
+        CANCELLED,
+        PARTIAL
     }
 
-    /**
-     * Проверка оплаты
-     */
     public boolean isPaid() {
         return status == PaymentStatus.PAID;
     }
 
-    /**
-     * Установка даты оплаты и статуса
-     */
     public void markAsPaid() {
         this.paidDate = LocalDateTime.now();
         this.status = PaymentStatus.PAID;

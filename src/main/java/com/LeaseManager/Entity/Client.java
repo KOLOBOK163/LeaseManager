@@ -6,9 +6,6 @@ import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-/**
- * Клиент (физическое или юридическое лицо)
- */
 @Entity
 @Table(name = "clients")
 @Builder
@@ -22,7 +19,6 @@ public class Client {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Общие поля
     @Column(name = "full_name", nullable = false, length = 255)
     private String fullName;
 

@@ -12,9 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * Сервис для работы с журналом аудита
- */
 @Service
 public class AuditService {
 
@@ -26,9 +23,6 @@ public class AuditService {
         this.userRepository = userRepository;
     }
 
-    /**
-     * Записать действие в журнал аудита
-     */
     @Transactional
     public void log(Long userId, AuditLog.AuditAction action, String entityType, Long entityId,
                     String description, String ipAddress) {
@@ -56,9 +50,6 @@ public class AuditService {
         auditLogRepository.save(log);
     }
 
-    /**
-     * Записать действие с изменением значений
-     */
     @Transactional
     public void logWithChanges(Long userId, AuditLog.AuditAction action, String entityType, Long entityId,
                                String description, String oldValue, String newValue, String ipAddress) {
@@ -88,49 +79,31 @@ public class AuditService {
         auditLogRepository.save(log);
     }
 
-    /**
-     * Получить все записи аудита с пагинацией
-     */
     @Transactional(readOnly = true)
     public Page<AuditLog> getAllLogs(Pageable pageable) {
         return auditLogRepository.findAllByOrderByTimestampDesc(pageable);
     }
 
-    /**
-     * Получить записи аудита по пользователю
-     */
     @Transactional(readOnly = true)
     public List<AuditLog> getLogsByUser(Long userId) {
         return auditLogRepository.findByUserId(userId);
     }
 
-    /**
-     * Получить записи аудита по сущности
-     */
     @Transactional(readOnly = true)
     public List<AuditLog> getLogsByEntity(String entityType, Long entityId) {
         return auditLogRepository.findByEntityTypeAndEntityId(entityType, entityId);
     }
 
-    /**
-     * Получить записи аудита по типу действия
-     */
     @Transactional(readOnly = true)
     public List<AuditLog> getLogsByAction(AuditLog.AuditAction action) {
         return auditLogRepository.findByAction(action);
     }
 
-    /**
-     * Получить записи аудита за период
-     */
     @Transactional(readOnly = true)
     public List<AuditLog> getLogsByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
         return auditLogRepository.findByDateRange(startDate, endDate);
     }
 
-    /**
-     * Получить записи аудита с фильтрами
-     */
     @Transactional(readOnly = true)
     public Page<AuditLog> getLogsWithFilters(Long userId, AuditLog.AuditAction action, String entityType,
                                              LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {

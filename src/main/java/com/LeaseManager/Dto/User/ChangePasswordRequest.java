@@ -7,9 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Запрос на смену пароля
- */
 @Data
 @Builder
 @NoArgsConstructor

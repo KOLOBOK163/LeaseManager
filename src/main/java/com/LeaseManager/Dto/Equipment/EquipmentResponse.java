@@ -24,9 +24,6 @@ public class EquipmentResponse {
     private Integer yearOfManufacture;
     private String status;
     private String description;
-
-    // === Характеристики торгового оборудования ===
-
     private String equipmentType;
     private String dimensions;
     private BigDecimal weight;

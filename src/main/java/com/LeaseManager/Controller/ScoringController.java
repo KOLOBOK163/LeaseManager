@@ -27,9 +27,6 @@ public class ScoringController {
         this.clientRepository = clientRepository;
     }
 
-    /**
-     * Выполнить скоринг клиента
-     */
     @PostMapping("/check/{clientId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<ScoringResponse> performScoring(@PathVariable Long clientId) {
@@ -40,9 +37,6 @@ public class ScoringController {
         return ResponseEntity.ok(toResponse(scoring));
     }
 
-    /**
-     * Получить последний скоринг клиента
-     */
     @GetMapping("/client/{clientId}/latest")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<ScoringResponse> getLatestScoring(@PathVariable Long clientId) {
@@ -53,9 +47,6 @@ public class ScoringController {
         return ResponseEntity.ok(toResponse(scoring));
     }
 
-    /**
-     * Получить историю скоринга клиента
-     */
     @GetMapping("/client/{clientId}/history")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<List<ScoringResponse>> getScoringHistory(@PathVariable Long clientId) {
@@ -66,9 +57,6 @@ public class ScoringController {
         return ResponseEntity.ok(responses);
     }
 
-    /**
-     * Получить список скорингов, требующих ручной проверки
-     */
     @GetMapping("/pending-reviews")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<List<ScoringResponse>> getPendingReviews() {
@@ -79,9 +67,6 @@ public class ScoringController {
         return ResponseEntity.ok(responses);
     }
 
-    /**
-     * Одобрить скоринг вручную
-     */
     @PostMapping("/{scoringId}/approve")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<ScoringResponse> approveManually(
@@ -93,9 +78,6 @@ public class ScoringController {
         return ResponseEntity.ok(toResponse(scoring));
     }
 
-    /**
-     * Отклонить скоринг вручную
-     */
     @PostMapping("/{scoringId}/reject")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<ScoringResponse> rejectManually(

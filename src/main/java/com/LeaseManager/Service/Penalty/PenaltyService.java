@@ -16,9 +16,6 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-/**
- * Сервис для расчёта пени за просрочку платежей
- */
 @Service
 public class PenaltyService {
 
@@ -34,12 +31,6 @@ public class PenaltyService {
         this.paymentRepository = paymentRepository;
     }
 
-    /**
-     * Рассчитать пеню за просрочку
-     *
-     * Формула: Пеня = Сумма платежа × Количество дней просрочки × Ставка пени
-     * Ставка пени: 0.1% в день (по умолчанию)
-     */
     public BigDecimal calculatePenalty(PaymentSchedule schedule) {
         if (schedule.getStatus() != PaymentScheduleStatus.OVERDUE) {
             return BigDecimal.ZERO;
@@ -52,10 +43,8 @@ public class PenaltyService {
             return BigDecimal.ZERO;
         }
 
-        // Количество дней просрочки
         long daysOverdue = ChronoUnit.DAYS.between(dueDate, today);
 
-        // Сумма платежа
         BigDecimal amount = schedule.getTotalAmount();
 
         // Пеня = Сумма × Дни × Ставка
@@ -66,9 +55,6 @@ public class PenaltyService {
         return penalty.setScale(2, BigDecimal.ROUND_HALF_UP);
     }
 
-    /**
-     * Рассчитать пеню для конкретного графика платежей
-     */
     @Transactional(readOnly = true)
     public BigDecimal calculatePenaltyForSchedule(Long scheduleId) {
         PaymentSchedule schedule = paymentScheduleRepository.findById(scheduleId)
@@ -76,9 +62,6 @@ public class PenaltyService {
         return calculatePenalty(schedule);
     }
 
-    /**
-     * Получить общую сумму пени по договору
-     */
     @Transactional(readOnly = true)
     public BigDecimal getTotalPenaltyForContract(Long contractId) {
         List<PaymentSchedule> schedules = paymentScheduleRepository.findByContractId(contractId);
@@ -89,9 +72,6 @@ public class PenaltyService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    /**
-     * Создать платёж для пени
-     */
     @Transactional
     public Payment createPenaltyPayment(Long scheduleId) {
         PaymentSchedule schedule = paymentScheduleRepository.findById(scheduleId)
@@ -103,7 +83,6 @@ public class PenaltyService {
             throw new IllegalStateException("Нет просрочки для начисления пени");
         }
 
-        // Создаём платёж типа PENALTY
         Payment penaltyPayment = Payment.builder()
                 .schedule(schedule)
                 .contract(schedule.getContract())
@@ -118,10 +97,6 @@ public class PenaltyService {
         return paymentRepository.save(penaltyPayment);
     }
 
-    /**
-     * Автоматическое начисление пени для просроченных платежей
-     * Запускается каждый день в 23:00
-     */
     @Scheduled(cron = "0 0 23 * * ?")
     @Transactional
     public void autoCalculatePenalties() {
@@ -150,9 +125,6 @@ public class PenaltyService {
         System.out.println("Автоматически начислено пени: " + penaltiesCreated);
     }
 
-    /**
-     * Получить все платежи-пени по договору
-     */
     @Transactional(readOnly = true)
     public List<Payment> getPenaltyPaymentsByContract(Long contractId) {
         return paymentRepository.findByContractId(contractId).stream()
@@ -160,9 +132,6 @@ public class PenaltyService {
                 .toList();
     }
 
-    /**
-     * Получить сумму неоплаченных пени по договору
-     */
     @Transactional(readOnly = true)
     public BigDecimal getUnpaidPenaltyForContract(Long contractId) {
         return paymentRepository.findByContractId(contractId).stream()
@@ -172,9 +141,6 @@ public class PenaltyService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    /**
-     * Установить ставку пени
-     */
     public void setDailyPenaltyRate(BigDecimal rate) {
         if (rate.compareTo(BigDecimal.ZERO) < 0 || rate.compareTo(BigDecimal.valueOf(1)) > 0) {
             throw new IllegalArgumentException("Ставка пени должна быть от 0 до 1%");
@@ -182,9 +148,6 @@ public class PenaltyService {
         this.dailyPenaltyRate = rate;
     }
 
-    /**
-     * Получить текущую ставку пени
-     */
     public BigDecimal getDailyPenaltyRate() {
         return dailyPenaltyRate;
     }

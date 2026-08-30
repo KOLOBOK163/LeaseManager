@@ -9,9 +9,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Договор лизинга
- */
 @Entity
 @Table(name = "contracts")
 @Builder
@@ -109,46 +106,32 @@ public class Contract {
     @OneToMany(mappedBy = "contract", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Payment> payments = new ArrayList<>();
 
-    /**
-     * Добавление графика платежей
-     */
+
     public void addPaymentSchedule(PaymentSchedule schedule) {
         paymentSchedules.add(schedule);
         schedule.setContract(this);
     }
 
-    /**
-     * Удаление графика платежей
-     */
     public void removePaymentSchedule(PaymentSchedule schedule) {
         paymentSchedules.remove(schedule);
         schedule.setContract(null);
     }
 
-    /**
-     * Добавление платежа
-     */
     public void addPayment(Payment payment) {
         payments.add(payment);
         payment.setContract(this);
     }
 
-    /**
-     * Удаление платежа
-     */
     public void removePayment(Payment payment) {
         payments.remove(payment);
         payment.setContract(null);
     }
 
-    /**
-     * Статусы договора
-     */
     public enum ContractStatus {
-        DRAFT,      // Черновик
-        ACTIVE,     // Активен
-        SUSPENDED,  // Приостановлен
-        CLOSED,     // Закрыт
-        CANCELLED   // Отменен
+        DRAFT,
+        ACTIVE,
+        SUSPENDED,
+        CLOSED,
+        CANCELLED
     }
 }

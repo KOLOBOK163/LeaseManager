@@ -9,9 +9,6 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/**
- * Ответ с информацией о платеже
- */
 @Data
 @Builder
 @NoArgsConstructor

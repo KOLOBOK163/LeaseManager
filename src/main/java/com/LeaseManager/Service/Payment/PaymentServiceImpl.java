@@ -1,4 +1,4 @@
-package com.LeaseManager.Service.Impl;
+package com.LeaseManager.Service.Payment;
 
 import com.LeaseManager.Dto.Payment.RegisterPaymentRequest;
 import com.LeaseManager.Dto.Payment.PaymentResponse;
@@ -11,7 +11,6 @@ import com.LeaseManager.Mapper.EntityMapper;
 import com.LeaseManager.Repository.ContractRepository;
 import com.LeaseManager.Repository.PaymentRepository;
 import com.LeaseManager.Repository.PaymentScheduleRepository;
-import com.LeaseManager.Service.PaymentService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,12 +75,10 @@ public class PaymentServiceImpl implements PaymentService {
         PaymentSchedule schedule = paymentScheduleRepository.findById(request.getScheduleId())
                 .orElseThrow(() -> new EntityNotFoundException("График платежа не найден с id: " + request.getScheduleId()));
 
-        // Проверяем, не оплачен ли уже этот график
         if (schedule.getStatus() == PaymentScheduleStatus.PAID) {
             throw new IllegalArgumentException("График платежа уже оплачен");
         }
 
-        // Создаём фактический платёж
         Payment payment = Payment.builder()
                 .schedule(schedule)
                 .contract(schedule.getContract())
@@ -94,7 +91,6 @@ public class PaymentServiceImpl implements PaymentService {
                 .comment(request.getComment())
                 .build();
 
-        // Сохраняем в отдельное поле номер документа, если нужно
         if (request.getDocumentNumber() != null && !request.getDocumentNumber().isBlank()) {
             payment.setComment((request.getComment() != null ? request.getComment() + ". " : "") 
                 + "Документ: " + request.getDocumentNumber());
@@ -102,16 +98,13 @@ public class PaymentServiceImpl implements PaymentService {
 
         paymentRepository.save(payment);
 
-        // Обновляем статус графика
         updateScheduleStatus(schedule);
 
-        // Обновляем статус платежа в графике
         if (schedule.getPayments().isEmpty() || schedule.getStatus() == PaymentScheduleStatus.PENDING) {
             schedule.setStatus(PaymentScheduleStatus.PAID);
             paymentScheduleRepository.save(schedule);
         }
 
-        // Проверяем, все ли платежи по договору оплачены
         checkAndCompleteContract(schedule.getContract());
 
         return toResponse(payment);
@@ -123,7 +116,6 @@ public class PaymentServiceImpl implements PaymentService {
         Payment payment = getPaymentById(paymentId);
         payment.markAsPaid();
 
-        // Обновление статуса графика платежей, если есть связь
         if (payment.getSchedule() != null) {
             updateScheduleStatus(payment.getSchedule());
         }
@@ -158,9 +150,6 @@ public class PaymentServiceImpl implements PaymentService {
         paymentRepository.deleteById(paymentId);
     }
 
-    /**
-     * Обновление статуса графика платежей на основе платежей
-     */
     private void updateScheduleStatus(PaymentSchedule schedule) {
         List<Payment> payments = schedule.getPayments();
 
@@ -168,7 +157,6 @@ public class PaymentServiceImpl implements PaymentService {
             return;
         }
 
-        // Считаем общую сумму оплаченных платежей
         BigDecimal totalPaid = payments.stream()
                 .filter(Payment::isPaid)
                 .map(Payment::getAmount)
@@ -176,35 +164,27 @@ public class PaymentServiceImpl implements PaymentService {
 
         BigDecimal scheduleTotal = schedule.getTotalAmount();
 
-        // Если оплачена вся сумма или больше - статус PAID
         if (totalPaid.compareTo(scheduleTotal) >= 0) {
             schedule.setStatus(PaymentScheduleStatus.PAID);
         }
-        // Если оплачена часть суммы - статус PARTIAL
         else if (totalPaid.compareTo(BigDecimal.ZERO) > 0) {
             schedule.setStatus(PaymentScheduleStatus.PARTIAL);
         }
-        // Иначе остаётся PENDING или OVERDUE
 
         paymentScheduleRepository.save(schedule);
     }
 
-    /**
-     * Проверка и автоматическое завершение договора при полной оплате
-     */
     private void checkAndCompleteContract(Contract contract) {
-        // Получаем все графики платежей по договору
+
         List<PaymentSchedule> schedules = paymentScheduleRepository.findByContractId(contract.getId());
 
         if (schedules.isEmpty()) {
             return;
         }
 
-        // Проверяем, все ли графики оплачены
         boolean allPaid = schedules.stream()
                 .allMatch(s -> s.getStatus() == PaymentScheduleStatus.PAID);
 
-        // Если все оплачено и договор активен, завершаем его
         if (allPaid && contract.getStatus() == Contract.ContractStatus.ACTIVE) {
             contract.setStatus(Contract.ContractStatus.CLOSED);
             contractRepository.save(contract);
