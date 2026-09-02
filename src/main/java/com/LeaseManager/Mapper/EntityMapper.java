@@ -11,14 +11,12 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface EntityMapper {
 
-    // Client
     Client toEntity(ClientDto dto);
 
     ClientDto toDto(Client entity);
 
     void updateEntityFromDto(ClientDto dto, @MappingTarget Client entity);
 
-    // Payment
     @Mapping(target = "contract", ignore = true)
     @Mapping(target = "schedule", ignore = true)
     Payment toEntity(PaymentDto dto);

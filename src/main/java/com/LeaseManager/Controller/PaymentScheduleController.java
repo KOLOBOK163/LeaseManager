@@ -44,14 +44,9 @@ public class PaymentScheduleController {
     }
 
     @PostMapping("/{id}/pay")
-    public ResponseEntity<PaymentScheduleResponse> markAsPaid(
-            @PathVariable Long id,
-            @Valid @RequestBody(required = false) MarkAsPaidRequest request) {
-        try {
-            PaymentScheduleResponse response = paymentScheduleService.markAsPaid(id, request != null ? request : new MarkAsPaidRequest());
-
-            // Логируем оплату
-            auditService.logWithChanges(
+    public ResponseEntity<PaymentScheduleResponse> markAsPaid(@PathVariable Long id, @Valid @RequestBody(required = false) MarkAsPaidRequest request) {
+        PaymentScheduleResponse response = paymentScheduleService.markAsPaid(id, request != null ? request : new MarkAsPaidRequest());
+        auditService.logWithChanges(
                 AuditUtil.getCurrentUserId(),
                 AuditLog.AuditAction.STATUS_CHANGE,
                 "PaymentSchedule",
@@ -60,32 +55,21 @@ public class PaymentScheduleController {
                 "{\"status\": \"PENDING\"}",
                 "{\"status\": \"PAID\"}",
                 AuditUtil.getClientIp()
-            );
-
-            return ResponseEntity.ok(response);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        );
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/{id}/cancel")
     public ResponseEntity<PaymentScheduleResponse> cancelSchedule(@PathVariable Long id) {
-        try {
-            PaymentScheduleResponse response = paymentScheduleService.cancelSchedule(id);
-
-            // Логируем отмену
-            auditService.log(
+        PaymentScheduleResponse response = paymentScheduleService.cancelSchedule(id);
+        auditService.log(
                 AuditUtil.getCurrentUserId(),
                 AuditLog.AuditAction.STATUS_CHANGE,
                 "PaymentSchedule",
                 id,
                 "Платеж отменен (Договор ID: " + response.getContractId() + ", Период: " + response.getPeriodNumber() + ")",
                 AuditUtil.getClientIp()
-            );
-
-            return ResponseEntity.ok(response);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        );
+        return ResponseEntity.ok(response);
     }
 }

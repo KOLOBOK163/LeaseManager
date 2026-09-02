@@ -62,7 +62,6 @@ public class EquipmentService {
             try {
                 equipmentType = Equipment.EquipmentType.valueOf(request.getEquipmentType().toUpperCase());
             } catch (IllegalArgumentException e) {
-                // ignore
             }
         }
 
@@ -124,12 +123,10 @@ public class EquipmentService {
         equipment.setYearOfManufacture(request.getYearOfManufacture());
         equipment.setDescription(request.getDescription());
 
-        // Обновление характеристик торгового оборудования
         if (request.getEquipmentType() != null && !request.getEquipmentType().isBlank()) {
             try {
                 equipment.setEquipmentType(Equipment.EquipmentType.valueOf(request.getEquipmentType().toUpperCase()));
             } catch (IllegalArgumentException e) {
-                // ignore
             }
         }
         equipment.setDimensions(request.getDimensions());
@@ -154,7 +151,6 @@ public class EquipmentService {
             try {
                 equipment.setStatus(EquipmentStatus.valueOf(request.getStatus().toUpperCase()));
             } catch (IllegalArgumentException e) {
-                // ignore
             }
         }
 
@@ -167,7 +163,6 @@ public class EquipmentService {
         Equipment equipment = equipmentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Оборудование не найдено с id: " + id));
 
-        // Проверка статуса - можно удалять только свободное оборудование
         if (equipment.getStatus() != EquipmentStatus.AVAILABLE) {
             throw new IllegalStateException("Можно удалить только оборудование со статусом 'Доступно'");
         }

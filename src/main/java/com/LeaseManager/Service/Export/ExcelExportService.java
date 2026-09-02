@@ -12,9 +12,6 @@ import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-/**
- * Сервис для экспорта данных в Excel
- */
 @Service
 public class ExcelExportService {
 
@@ -27,9 +24,6 @@ public class ExcelExportService {
         this.paymentScheduleRepository = paymentScheduleRepository;
     }
 
-    /**
-     * Экспорт договора с графиком платежей в Excel
-     */
     public byte[] exportContract(Long contractId) throws IOException {
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new IllegalArgumentException("Договор не найден"));
@@ -37,11 +31,9 @@ public class ExcelExportService {
         List<PaymentSchedule> schedules = paymentScheduleRepository.findByContractId(contractId);
 
         try (Workbook workbook = new XSSFWorkbook()) {
-            // Лист с информацией о договоре
             Sheet contractSheet = workbook.createSheet("Договор");
             createContractSheet(contractSheet, contract);
 
-            // Лист с графиком платежей
             Sheet scheduleSheet = workbook.createSheet("График платежей");
             createScheduleSheet(scheduleSheet, schedules);
 
@@ -51,16 +43,12 @@ public class ExcelExportService {
         }
     }
 
-    /**
-     * Экспорт всех договоров в Excel
-     */
     public byte[] exportAllContracts() throws IOException {
         List<Contract> contracts = contractRepository.findAll();
 
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Договоры");
 
-            // Заголовки
             Row headerRow = sheet.createRow(0);
             CellStyle headerStyle = createHeaderStyle(workbook);
 
@@ -72,7 +60,6 @@ public class ExcelExportService {
                 cell.setCellStyle(headerStyle);
             }
 
-            // Данные
             int rowNum = 1;
             for (Contract contract : contracts) {
                 Row row = sheet.createRow(rowNum++);
@@ -88,7 +75,6 @@ public class ExcelExportService {
                 row.createCell(8).setCellValue(contract.getStatus().toString());
             }
 
-            // Автоширина колонок
             for (int i = 0; i < headers.length; i++) {
                 sheet.autoSizeColumn(i);
             }
@@ -99,25 +85,20 @@ public class ExcelExportService {
         }
     }
 
-    /**
-     * Создание листа с информацией о договоре
-     */
     private void createContractSheet(Sheet sheet, Contract contract) {
         CellStyle labelStyle = createLabelStyle(sheet.getWorkbook());
         CellStyle valueStyle = createValueStyle(sheet.getWorkbook());
 
         int rowNum = 0;
 
-        // Заголовок
         Row titleRow = sheet.createRow(rowNum++);
         Cell titleCell = titleRow.createCell(0);
         titleCell.setCellValue("ДОГОВОР ЛИЗИНГА № " + contract.getContractNumber());
         CellStyle titleStyle = createTitleStyle(sheet.getWorkbook());
         titleCell.setCellStyle(titleStyle);
 
-        rowNum++; // Пустая строка
+        rowNum++;
 
-        // Информация о договоре
         addRow(sheet, rowNum++, "Номер договора:", contract.getContractNumber(), labelStyle, valueStyle);
         addRow(sheet, rowNum++, "Клиент:", getClientName(contract.getClient()), labelStyle, valueStyle);
         addRow(sheet, rowNum++, "ИНН:", contract.getClient().getInn(), labelStyle, valueStyle);
@@ -133,13 +114,9 @@ public class ExcelExportService {
         sheet.setColumnWidth(1, 8000);
     }
 
-    /**
-     * Создание листа с графиком платежей
-     */
     private void createScheduleSheet(Sheet sheet, List<PaymentSchedule> schedules) {
         CellStyle headerStyle = createHeaderStyle(sheet.getWorkbook());
 
-        // Заголовки
         Row headerRow = sheet.createRow(0);
         String[] headers = {"Период", "Дата платежа", "Общая сумма", "Основной долг", "Проценты", "Статус"};
         for (int i = 0; i < headers.length; i++) {
@@ -148,7 +125,6 @@ public class ExcelExportService {
             cell.setCellStyle(headerStyle);
         }
 
-        // Данные
         int rowNum = 1;
         for (PaymentSchedule schedule : schedules) {
             Row row = sheet.createRow(rowNum++);
@@ -161,7 +137,6 @@ public class ExcelExportService {
             row.createCell(5).setCellValue(schedule.getStatus().toString());
         }
 
-        // Автоширина колонок
         for (int i = 0; i < headers.length; i++) {
             sheet.autoSizeColumn(i);
         }

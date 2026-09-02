@@ -11,9 +11,6 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/**
- * Запрос на регистрацию фактического платежа от лизингополучателя
- */
 @Data
 @Builder
 @NoArgsConstructor
@@ -32,9 +29,9 @@ public class RegisterPaymentRequest {
 
     private Payment.PaymentType paymentType = Payment.PaymentType.PRINCIPAL;
 
-    private Payment.PaymentMethod paymentMethod; // Способ оплаты
+    private Payment.PaymentMethod paymentMethod;
 
     private String comment;
 
-    private String documentNumber; // Номер платёжного документа (платёжное поручение и т.д.)
+    private String documentNumber;
 }

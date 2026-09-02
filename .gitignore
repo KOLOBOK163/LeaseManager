@@ -41,6 +41,8 @@ build/
 # Test data
 *.sql
 !src/main/resources/db/migration/*.sql
+*.sh
+*.dump
 
 # logs and temp files
 *.log

@@ -2,19 +2,9 @@ package com.LeaseManager.Service.Validation;
 
 import org.springframework.stereotype.Component;
 
-/**
- * Валидатор банковских реквизитов
- * Проверяет корректность расчётного счёта и БИК банка
- */
 @Component
 public class BankAccountValidator {
 
-    /**
-     * Проверка корректности расчётного счёта
-     * @param accountNumber номер счёта (20 цифр)
-     * @param bik БИК банка (9 цифр)
-     * @return true если счёт корректен
-     */
     public boolean isValidAccount(String accountNumber, String bik) {
         if (accountNumber == null || bik == null) {
             return false;
@@ -32,14 +22,10 @@ public class BankAccountValidator {
             return false;
         }
 
-        // Проверяем контрольную сумму
         String bikAccountNumber = bik.substring(6) + accountNumber;
         return checkControlSum(bikAccountNumber);
     }
 
-    /**
-     * Проверка БИК банка
-     */
     public boolean isValidBik(String bik) {
         if (bik == null) {
             return false;
@@ -49,10 +35,6 @@ public class BankAccountValidator {
         return bik.matches("\\d{9}");
     }
 
-    /**
-     * Проверка контрольной суммы по модулю 10
-     * Алгоритм проверки расчётного счёта с БИК
-     */
     private boolean checkControlSum(String bikAccountNumber) {
         // Берём последние 3 цифры БИК + 20 цифр счёта = 23 цифры
         if (bikAccountNumber.length() != 23) {
@@ -69,9 +51,6 @@ public class BankAccountValidator {
         return sum % 10 == 0;
     }
 
-    /**
-     * Получение сообщения об ошибке для расчётного счёта
-     */
     public String getAccountErrorMessage(String accountNumber) {
         if (accountNumber == null || accountNumber.isEmpty()) {
             return "Расчётный счёт не может быть пустым";
@@ -90,9 +69,6 @@ public class BankAccountValidator {
         return "Неверная контрольная сумма расчётного счёта";
     }
 
-    /**
-     * Получение сообщения об ошибке для БИК
-     */
     public String getBikErrorMessage(String bik) {
         if (bik == null || bik.isEmpty()) {
             return "БИК не может быть пустым";

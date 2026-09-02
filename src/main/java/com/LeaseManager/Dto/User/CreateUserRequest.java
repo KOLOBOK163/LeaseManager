@@ -9,9 +9,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Запрос на создание пользователя
- */
 @Data
 @Builder
 @NoArgsConstructor

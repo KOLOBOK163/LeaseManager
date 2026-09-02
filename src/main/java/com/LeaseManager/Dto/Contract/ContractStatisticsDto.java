@@ -14,10 +14,10 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ContractStatisticsDto {
-    private BigDecimal totalAmount;        // Общая сумма договора
-    private BigDecimal paidAmount;         // Сумма оплачено
-    private BigDecimal remainingAmount;    // Остаток долга
-    private Integer totalPayments;         // Всего платежей
-    private Integer paidPayments;          // Оплачено платежей
-    private Integer overduePayments;       // Просроченных платежей
+    private BigDecimal totalAmount;
+    private BigDecimal paidAmount;
+    private BigDecimal remainingAmount;
+    private Integer totalPayments;
+    private Integer paidPayments;
+    private Integer overduePayments;
 }

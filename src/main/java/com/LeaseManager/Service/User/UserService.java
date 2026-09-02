@@ -50,7 +50,6 @@ public class UserService {
 
     @Transactional
     public UserResponse createUser(CreateUserRequest request) {
-        // Проверка на уникальность username
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new IllegalArgumentException("Пользователь с таким именем уже существует");
         }
@@ -73,7 +72,6 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден с id: " + userId));
 
-        // Обновление username
         if (request.getUsername() != null && !request.getUsername().isBlank()) {
             if (!request.getUsername().equals(user.getUsername()) &&
                 userRepository.existsByUsername(request.getUsername())) {
@@ -82,27 +80,22 @@ public class UserService {
             user.setUsername(request.getUsername());
         }
 
-        // Обновление пароля
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
 
-        // Обновление роли
         if (request.getRole() != null) {
             user.setRole(request.getRole());
         }
 
-        // Обновление ФИО
         if (request.getFullName() != null) {
             user.setFullName(request.getFullName());
         }
 
-        // Обновление email
         if (request.getEmail() != null) {
             user.setEmail(request.getEmail());
         }
 
-        // Обновление статуса active
         if (request.getActive() != null) {
             // Запрет на деактивацию последнего ADMIN
             if (!request.getActive() && user.getRole() == UserRole.ADMIN) {
@@ -123,7 +116,6 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден с id: " + userId));
 
-        // Запрет на удаление последнего ADMIN
         if (user.getRole() == UserRole.ADMIN) {
             long adminCount = userRepository.countByRole(UserRole.ADMIN);
             if (adminCount <= 1) {
@@ -131,7 +123,6 @@ public class UserService {
             }
         }
 
-        // Запрет на удаление самого себя
         User currentUser = getCurrentUser();
         if (currentUser != null && currentUser.getId().equals(userId)) {
             throw new IllegalArgumentException("Нельзя удалить самого себя");
@@ -145,12 +136,9 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден с id: " + userId));
 
-        // Проверка текущего пароля
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
             throw new IllegalArgumentException("Неверный текущий пароль");
         }
-
-        // Установка нового пароля
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
     }
@@ -176,8 +164,6 @@ public class UserService {
     }
 
     private User getCurrentUser() {
-        // Получение текущего пользователя из контекста безопасности
-        // Пока возвращаем null, так как в сервисе нет доступа к SecurityContext
         return null;
     }
 }

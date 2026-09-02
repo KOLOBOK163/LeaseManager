@@ -1,17 +1,12 @@
 package com.LeaseManager.Controller;
 
-import com.LeaseManager.Dto.Contract.ChangeContractStatusRequest;
-import com.LeaseManager.Dto.Contract.ContractStatisticsDto;
-import com.LeaseManager.Dto.Contract.CreateContractRequest;
-import com.LeaseManager.Dto.Contract.GeneratePaymentScheduleRequest;
-import com.LeaseManager.Dto.Contract.UpdateContractRequest;
+import com.LeaseManager.Dto.Contract.*;
 import com.LeaseManager.Entity.AuditLog;
 import com.LeaseManager.Entity.Contract;
 import com.LeaseManager.Entity.PaymentSchedule;
 import com.LeaseManager.Service.Audit.AuditService;
-import com.LeaseManager.Service.ContractService;
+import com.LeaseManager.Service.Contract.ContractService;
 import com.LeaseManager.Util.AuditUtil;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,27 +27,21 @@ public class ContractController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Contract>> getAllContracts(
+    public ResponseEntity<List<ContractResponse>> getAllContracts(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String search) {
         return ResponseEntity.ok(contractService.getAllContracts(status, search));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Contract> getContractById(@PathVariable Long id) {
-        try {
-            Contract contract = contractService.getContractById(id);
-            return ResponseEntity.ok(contract);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<ContractResponse> getContractById(@PathVariable Long id) {
+        return ResponseEntity.ok(contractService.getContractById(id));
+
     }
 
     @PostMapping
-    public ResponseEntity<Contract> createContract(@Valid @RequestBody CreateContractRequest request) {
-        Contract created = contractService.createContract(request);
-
-        // Логируем создание
+    public ResponseEntity<ContractResponse> createContract(@Valid @RequestBody CreateContractRequest request) {
+        ContractResponse created = contractService.createContract(request);
         auditService.log(
             AuditUtil.getCurrentUserId(),
             AuditLog.AuditAction.CREATE,
@@ -61,45 +50,30 @@ public class ContractController {
             "Создан договор: " + created.getContractNumber(),
             AuditUtil.getClientIp()
         );
-
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Contract> updateContract(
-            @PathVariable Long id,
-            @Valid @RequestBody UpdateContractRequest request) {
-        try {
-            Contract updated = contractService.updateContract(id, request);
-
-            // Логируем обновление
-            auditService.log(
+    public ResponseEntity<ContractResponse> updateContract(@PathVariable Long id, @Valid @RequestBody UpdateContractRequest request) {
+        ContractResponse updated = contractService.updateContract(id, request);
+        auditService.log(
                 AuditUtil.getCurrentUserId(),
                 AuditLog.AuditAction.UPDATE,
                 "Contract",
                 id,
                 "Обновлен договор: " + updated.getContractNumber(),
                 AuditUtil.getClientIp()
-            );
-
-            return ResponseEntity.ok(updated);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        );
+        return ResponseEntity.ok(updated);
     }
 
     @PatchMapping("/{id}/status")
-    public ResponseEntity<Contract> changeStatus(
-            @PathVariable Long id,
-            @Valid @RequestBody ChangeContractStatusRequest request) {
-        try {
-            Contract contract = contractService.getContractById(id);
-            String oldStatus = contract.getStatus().toString();
+    public ResponseEntity<ContractResponse> changeStatus(@PathVariable Long id, @Valid @RequestBody ChangeContractStatusRequest request) {
+        ContractResponse contract = contractService.getContractById(id);
+        String oldStatus = contract.getStatus().toString();
+        ContractResponse updated = contractService.changeStatus(id, request);
 
-            Contract updated = contractService.changeStatus(id, request);
-
-            // Логируем изменение статуса
-            auditService.logWithChanges(
+        auditService.logWithChanges(
                 AuditUtil.getCurrentUserId(),
                 AuditLog.AuditAction.STATUS_CHANGE,
                 "Contract",
@@ -108,81 +82,49 @@ public class ContractController {
                 "{\"status\": \"" + oldStatus + "\"}",
                 "{\"status\": \"" + updated.getStatus() + "\"}",
                 AuditUtil.getClientIp()
-            );
-
-            return ResponseEntity.ok(updated);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        );
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteContract(@PathVariable Long id) {
-        try {
-            Contract contract = contractService.getContractById(id);
+        ContractResponse contract = contractService.getContractById(id);
+        contractService.delete(id);
 
-            contractService.delete(id);
-
-            // Логируем удаление
-            auditService.log(
+        auditService.log(
                 AuditUtil.getCurrentUserId(),
                 AuditLog.AuditAction.DELETE,
                 "Contract",
                 id,
                 "Удален договор: " + contract.getContractNumber(),
                 AuditUtil.getClientIp()
-            );
-
-            return ResponseEntity.noContent().build();
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        );
+        return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Генерация графика платежей по договору
-     */
     @PostMapping("/{id}/payment-schedule/generate")
-    public ResponseEntity<List<PaymentSchedule>> generatePaymentSchedule(
-            @PathVariable Long id,
-            @RequestBody(required = false) GeneratePaymentScheduleRequest request) {
-        try {
-            if (request == null) {
-                request = new GeneratePaymentScheduleRequest();
-            }
-            request.setContractId(id);
-            List<PaymentSchedule> schedules = contractService.generatePaymentSchedule(request);
+    public ResponseEntity<List<PaymentSchedule>> generatePaymentSchedule(@PathVariable Long id, @RequestBody(required = false) GeneratePaymentScheduleRequest request) {
+        if (request == null) {
+            request = new GeneratePaymentScheduleRequest();
+        }
+        request.setContractId(id);
+        List<PaymentSchedule> schedules = contractService.generatePaymentSchedule(request);
 
-            Contract contract = contractService.getContractById(id);
-
-            // Логируем генерацию графика
-            auditService.log(
+        ContractResponse contract = contractService.getContractById(id);
+        auditService.log(
                 AuditUtil.getCurrentUserId(),
                 AuditLog.AuditAction.CREATE,
                 "PaymentSchedule",
                 id,
                 "Сгенерирован график платежей для договора " + contract.getContractNumber() + " (" + schedules.size() + " периодов)",
                 AuditUtil.getClientIp()
-            );
-
-            return ResponseEntity.ok(schedules);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        );
+        return ResponseEntity.ok(schedules);
     }
 
-    /**
-     * Получение статистики по договору
-     */
     @GetMapping("/{id}/statistics")
     public ResponseEntity<ContractStatisticsDto> getContractStatistics(@PathVariable Long id) {
-        try {
-            ContractStatisticsDto statistics = contractService.getContractStatistics(id);
-            return ResponseEntity.ok(statistics);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        ContractStatisticsDto statistics = contractService.getContractStatistics(id);
+        return ResponseEntity.ok(statistics);
     }
 }

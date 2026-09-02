@@ -15,10 +15,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * Сервис скоринга клиентов
- * Оценивает кредитоспособность на основе истории платежей и других факторов
- */
 @Service
 public class ScoringService {
 
@@ -26,7 +22,6 @@ public class ScoringService {
     private final ContractRepository contractRepository;
     private final PaymentScheduleRepository paymentScheduleRepository;
 
-    // Пороговые значения для скоринга
     private static final int AUTO_APPROVE_THRESHOLD = 70;
     private static final int MANUAL_REVIEW_THRESHOLD = 50;
 
@@ -38,9 +33,6 @@ public class ScoringService {
         this.paymentScheduleRepository = paymentScheduleRepository;
     }
 
-    /**
-     * Выполнить скоринг клиента
-     */
     @Transactional
     public ClientScoring performScoring(Client client) {
         int score = calculateScore(client);
@@ -75,9 +67,6 @@ public class ScoringService {
         return scoringRepository.save(scoring);
     }
 
-    /**
-     * Расчёт скорингового балла (0-100)
-     */
     private int calculateScore(Client client) {
         int score = 50; // Базовый балл для новых клиентов
 
@@ -106,9 +95,6 @@ public class ScoringService {
         return Math.max(0, Math.min(100, score));
     }
 
-    /**
-     * Анализ истории договоров клиента
-     */
     private int analyzeContractHistory(List<Contract> contracts) {
         int historyScore = 0;
 
@@ -145,26 +131,17 @@ public class ScoringService {
         return historyScore;
     }
 
-    /**
-     * Получить последний скоринг клиента
-     */
     @Transactional(readOnly = true)
     public ClientScoring getLatestScoring(Long clientId) {
         return scoringRepository.findFirstByClientIdOrderByCheckedDateDesc(clientId)
                 .orElse(null);
     }
 
-    /**
-     * Получить все скоринги клиента
-     */
     @Transactional(readOnly = true)
     public List<ClientScoring> getClientScoringHistory(Long clientId) {
         return scoringRepository.findByClientId(clientId);
     }
 
-    /**
-     * Ручное одобрение менеджером
-     */
     @Transactional
     public ClientScoring approveManually(Long scoringId, Long managerId, String comment) {
         ClientScoring scoring = scoringRepository.findById(scoringId)
@@ -173,15 +150,9 @@ public class ScoringService {
         scoring.setStatus(ClientScoring.ScoringStatus.APPROVED);
         scoring.setReviewDate(LocalDateTime.now());
         scoring.setReviewComment(comment);
-        // Здесь можно добавить связь с User если нужно
-        // scoring.setReviewedBy(userRepository.findById(managerId).orElse(null));
-
         return scoringRepository.save(scoring);
     }
 
-    /**
-     * Ручное отклонение менеджером
-     */
     @Transactional
     public ClientScoring rejectManually(Long scoringId, Long managerId, String reason) {
         ClientScoring scoring = scoringRepository.findById(scoringId)
@@ -194,9 +165,6 @@ public class ScoringService {
         return scoringRepository.save(scoring);
     }
 
-    /**
-     * Получить список скорингов, требующих ручной проверки
-     */
     @Transactional(readOnly = true)
     public List<ClientScoring> getPendingManualReviews() {
         return scoringRepository.findByStatus(ClientScoring.ScoringStatus.MANUAL_REVIEW);

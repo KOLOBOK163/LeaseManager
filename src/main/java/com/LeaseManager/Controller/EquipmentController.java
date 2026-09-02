@@ -34,19 +34,13 @@ public class EquipmentController {
 
     @GetMapping("/{id}")
     public ResponseEntity<EquipmentResponse> getEquipmentById(@PathVariable Long id) {
-        try {
-            EquipmentResponse equipment = equipmentService.getEquipmentById(id);
-            return ResponseEntity.ok(equipment);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        EquipmentResponse equipment = equipmentService.getEquipmentById(id);
+        return ResponseEntity.ok(equipment);
     }
 
     @PostMapping
     public ResponseEntity<EquipmentResponse> createEquipment(@Valid @RequestBody CreateEquipmentRequest request) {
         EquipmentResponse created = equipmentService.createEquipment(request);
-
-        // Логируем создание
         auditService.log(
             AuditUtil.getCurrentUserId(),
             AuditLog.AuditAction.CREATE,
@@ -55,54 +49,35 @@ public class EquipmentController {
             "Создано оборудование: " + created.getName(),
             AuditUtil.getClientIp()
         );
-
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EquipmentResponse> updateEquipment(
-            @PathVariable Long id,
-            @Valid @RequestBody CreateEquipmentRequest request) {
-        try {
-            EquipmentResponse updated = equipmentService.updateEquipment(id, request);
-
-            // Логируем обновление
-            auditService.log(
+    public ResponseEntity<EquipmentResponse> updateEquipment(@PathVariable Long id, @Valid @RequestBody CreateEquipmentRequest request) {
+        EquipmentResponse updated = equipmentService.updateEquipment(id, request);
+        auditService.log(
                 AuditUtil.getCurrentUserId(),
                 AuditLog.AuditAction.UPDATE,
                 "Equipment",
                 id,
                 "Обновлено оборудование: " + updated.getName(),
                 AuditUtil.getClientIp()
-            );
-
-            return ResponseEntity.ok(updated);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        );
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEquipment(@PathVariable Long id) {
-        try {
-            // Получаем информацию перед удалением
-            EquipmentResponse equipment = equipmentService.getEquipmentById(id);
-
-            equipmentService.delete(id);
-
-            // Логируем удаление
-            auditService.log(
+        EquipmentResponse equipment = equipmentService.getEquipmentById(id);
+        equipmentService.delete(id);
+        auditService.log(
                 AuditUtil.getCurrentUserId(),
                 AuditLog.AuditAction.DELETE,
                 "Equipment",
                 id,
                 "Удалено оборудование: " + equipment.getName(),
                 AuditUtil.getClientIp()
-            );
-
-            return ResponseEntity.noContent().build();
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        );
+        return ResponseEntity.noContent().build();
     }
 }

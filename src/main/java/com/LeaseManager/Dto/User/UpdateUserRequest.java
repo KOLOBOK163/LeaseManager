@@ -7,9 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Запрос на обновление пользователя
- */
 @Data
 @Builder
 @NoArgsConstructor

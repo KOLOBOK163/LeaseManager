@@ -22,9 +22,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Сервис для управления страхованием оборудования
- */
 @Service
 public class InsuranceService {
 
@@ -45,9 +42,6 @@ public class InsuranceService {
         this.emailService = emailService;
     }
 
-    /**
-     * Добавить страхование к договору
-     */
     @Transactional
     public Contract addInsurance(Long contractId, InsuranceDto insuranceDto) {
         Contract contract = contractRepository.findById(contractId)
@@ -65,17 +59,11 @@ public class InsuranceService {
         return contractRepository.save(contract);
     }
 
-    /**
-     * Обновить страхование
-     */
     @Transactional
     public Contract updateInsurance(Long contractId, InsuranceDto insuranceDto) {
         return addInsurance(contractId, insuranceDto);
     }
 
-    /**
-     * Получить информацию о страховании
-     */
     @Transactional(readOnly = true)
     public InsuranceDto getInsurance(Long contractId) {
         Contract contract = contractRepository.findById(contractId)
@@ -131,17 +119,10 @@ public class InsuranceService {
         return equipmentPrice.multiply(rate).setScale(2, RoundingMode.HALF_UP);
     }
 
-    /**
-     * Рассчитать ежемесячную страховую премию
-     */
     public BigDecimal calculateMonthlyPremium(BigDecimal annualPremium) {
         return annualPremium.divide(BigDecimal.valueOf(12), 2, RoundingMode.HALF_UP);
     }
 
-    /**
-     * Проверить истечение срока страхования
-     * Запускается каждый день в 8:00
-     */
     @Scheduled(cron = "0 0 8 * * ?")
     @Transactional(readOnly = true)
     public void checkExpiringInsurance() {
@@ -159,13 +140,11 @@ public class InsuranceService {
 
                 LocalDate expiryDate = contract.getInsuranceExpiryDate();
 
-                // Уведомление за 30 дней
                 if (expiryDate.isAfter(today) && expiryDate.isBefore(thirtyDaysLater)) {
                     sendInsuranceExpiryNotification(contract);
                     notificationsSent++;
                 }
 
-                // Уведомление о просроченной страховке
                 if (expiryDate.isBefore(today)) {
                     sendInsuranceExpiredNotification(contract);
                     notificationsSent++;
@@ -176,11 +155,7 @@ public class InsuranceService {
         logger.info("Отправлено {} уведомлений об истечении страховок", notificationsSent);
     }
 
-    /**
-     * Получить список email-адресов менеджеров и администраторов
-     */
     private List<String> getManagerEmails() {
-        // Получаем всех активных менеджеров
         List<User> managers = userRepository.findAll().stream()
                 .filter(user -> user.getActive() != null && user.getActive())
                 .filter(user -> user.getRole() == UserRole.MANAGER)
@@ -204,9 +179,6 @@ public class InsuranceService {
         return emails;
     }
 
-    /**
-     * Отправить уведомление менеджерам об истечении страховки
-     */
     private void sendInsuranceExpiryNotification(Contract contract) {
         List<String> managerEmails = getManagerEmails();
 
@@ -275,9 +247,6 @@ public class InsuranceService {
         }
     }
 
-    /**
-     * Отправить уведомление менеджерам о просроченной страховке
-     */
     private void sendInsuranceExpiredNotification(Contract contract) {
         List<String> managerEmails = getManagerEmails();
 
@@ -345,9 +314,6 @@ public class InsuranceService {
         }
     }
 
-    /**
-     * Получить список договоров с истекающей страховкой
-     */
     @Transactional(readOnly = true)
     public List<Contract> getContractsWithExpiringInsurance(int daysAhead) {
         LocalDate today = LocalDate.now();
@@ -361,9 +327,6 @@ public class InsuranceService {
                 .toList();
     }
 
-    /**
-     * Получить список договоров с просроченной страховкой
-     */
     @Transactional(readOnly = true)
     public List<Contract> getContractsWithExpiredInsurance() {
         LocalDate today = LocalDate.now();

@@ -13,9 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.util.List;
 
-/**
- * Контроллер для управления инцидентами с оборудованием
- */
 @RestController
 @RequestMapping("/api/incidents")
 public class IncidentController {
@@ -26,9 +23,6 @@ public class IncidentController {
         this.incidentService = incidentService;
     }
 
-    /**
-     * Создать инцидент
-     */
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<IncidentResponse> createIncident(
@@ -38,9 +32,6 @@ public class IncidentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    /**
-     * Получить инцидент по ID
-     */
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<IncidentResponse> getIncidentById(@PathVariable Long id) {
@@ -48,9 +39,6 @@ public class IncidentController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Получить все инциденты
-     */
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<List<IncidentResponse>> getAllIncidents() {
@@ -58,9 +46,6 @@ public class IncidentController {
         return ResponseEntity.ok(incidents);
     }
 
-    /**
-     * Получить инциденты по оборудованию
-     */
     @GetMapping("/equipment/{equipmentId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<List<IncidentResponse>> getIncidentsByEquipment(@PathVariable Long equipmentId) {
@@ -68,9 +53,6 @@ public class IncidentController {
         return ResponseEntity.ok(incidents);
     }
 
-    /**
-     * Получить инциденты по договору
-     */
     @GetMapping("/contract/{contractId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<List<IncidentResponse>> getIncidentsByContract(@PathVariable Long contractId) {
@@ -78,9 +60,6 @@ public class IncidentController {
         return ResponseEntity.ok(incidents);
     }
 
-    /**
-     * Получить активные инциденты
-     */
     @GetMapping("/active")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<List<IncidentResponse>> getActiveIncidents() {
@@ -88,9 +67,6 @@ public class IncidentController {
         return ResponseEntity.ok(incidents);
     }
 
-    /**
-     * Получить инциденты, требующие компенсации
-     */
     @GetMapping("/requiring-compensation")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<IncidentResponse>> getIncidentsRequiringCompensation() {
@@ -98,9 +74,6 @@ public class IncidentController {
         return ResponseEntity.ok(incidents);
     }
 
-    /**
-     * Обновить инцидент
-     */
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<IncidentResponse> updateIncident(
@@ -111,9 +84,6 @@ public class IncidentController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Рассчитать компенсацию
-     */
     @GetMapping("/{id}/calculate-compensation")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<BigDecimal> calculateCompensation(@PathVariable Long id) {
@@ -121,9 +91,6 @@ public class IncidentController {
         return ResponseEntity.ok(compensation);
     }
 
-    /**
-     * Удалить инцидент
-     */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteIncident(

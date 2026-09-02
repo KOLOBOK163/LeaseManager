@@ -5,9 +5,6 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-/**
- * Журнал аудита действий пользователей
- */
 @Entity
 @Table(name = "audit_log")
 @Builder
@@ -54,19 +51,16 @@ public class AuditLog {
     @Builder.Default
     private LocalDateTime timestamp = LocalDateTime.now();
 
-    /**
-     * Типы действий для аудита
-     */
     public enum AuditAction {
-        CREATE,         // Создание
-        UPDATE,         // Обновление
-        DELETE,         // Удаление
-        LOGIN,          // Вход в систему
-        LOGOUT,         // Выход из системы
-        STATUS_CHANGE,  // Изменение статуса
-        APPROVE,        // Одобрение
-        REJECT,         // Отклонение
-        EXPORT,         // Экспорт данных
-        VIEW            // Просмотр
+        CREATE,
+        UPDATE,
+        DELETE,
+        LOGIN,
+        LOGOUT,
+        STATUS_CHANGE,
+        APPROVE,
+        REJECT,
+        EXPORT,
+        VIEW
     }
 }

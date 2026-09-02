@@ -5,9 +5,8 @@ import com.LeaseManager.Dto.Client.CreateClientRequest;
 import com.LeaseManager.Dto.Client.UpdateClientRequest;
 import com.LeaseManager.Entity.AuditLog;
 import com.LeaseManager.Service.Audit.AuditService;
-import com.LeaseManager.Service.ClientService;
+import com.LeaseManager.Service.Client.ClientService;
 import com.LeaseManager.Util.AuditUtil;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,19 +42,13 @@ public class ClientController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ClientResponse> getClientById(@PathVariable Long id) {
-        try {
-            ClientResponse client = clientService.getClientById(id);
-            return ResponseEntity.ok(client);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        ClientResponse client = clientService.getClientById(id);
+        return ResponseEntity.ok(client);
     }
 
     @PostMapping
     public ResponseEntity<ClientResponse> createClient(@Valid @RequestBody CreateClientRequest request) {
         ClientResponse created = clientService.createClient(request);
-
-        // Логируем создание
         auditService.log(
             AuditUtil.getCurrentUserId(),
             AuditLog.AuditAction.CREATE,
@@ -64,42 +57,28 @@ public class ClientController {
             "Создан клиент: " + created.getFullName(),
             AuditUtil.getClientIp()
         );
-
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ClientResponse> updateClient(
-            @PathVariable Long id,
-            @Valid @RequestBody UpdateClientRequest request) {
-        try {
-            ClientResponse updated = clientService.updateClient(id, request);
-
-            // Логируем обновление
-            auditService.log(
+    public ResponseEntity<ClientResponse> updateClient(@PathVariable Long id, @Valid @RequestBody UpdateClientRequest request) {
+        ClientResponse updated = clientService.updateClient(id, request);
+        auditService.log(
                 AuditUtil.getCurrentUserId(),
                 AuditLog.AuditAction.UPDATE,
                 "Client",
                 id,
                 "Обновлен клиент: " + updated.getFullName(),
                 AuditUtil.getClientIp()
-            );
-
-            return ResponseEntity.ok(updated);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        );
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteClient(@PathVariable Long id) {
-        try {
-            ClientResponse client = clientService.getClientById(id);
-
-            clientService.delete(id);
-
-            // Логируем удаление
-            auditService.log(
+        ClientResponse client = clientService.getClientById(id);
+        clientService.delete(id);
+        auditService.log(
                 AuditUtil.getCurrentUserId(),
                 AuditLog.AuditAction.DELETE,
                 "Client",
@@ -107,10 +86,6 @@ public class ClientController {
                 "Удален клиент: " + client.getFullName(),
                 AuditUtil.getClientIp()
             );
-
-            return ResponseEntity.noContent().build();
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.noContent().build();
     }
 }

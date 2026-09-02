@@ -18,9 +18,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Сервис для отправки уведомлений о платежах менеджерам и администраторам
- */
 @Service
 public class NotificationService {
 
@@ -41,11 +38,7 @@ public class NotificationService {
         this.emailService = emailService;
     }
 
-    /**
-     * Получить список email-адресов менеджеров и администраторов
-     */
     private List<String> getManagerEmails() {
-        // Получаем всех активных менеджеров
         List<User> managers = userRepository.findAll().stream()
                 .filter(user -> user.getActive() != null && user.getActive())
                 .filter(user -> user.getRole() == UserRole.MANAGER)
@@ -56,7 +49,6 @@ public class NotificationService {
                 .filter(email -> email != null && !email.isEmpty())
                 .collect(Collectors.toList());
 
-        // Если в настройках указаны дополнительные email, добавляем их
         if (managerEmails != null && !managerEmails.isEmpty()) {
             String[] additionalEmails = managerEmails.split(",");
             for (String email : additionalEmails) {
@@ -70,9 +62,6 @@ public class NotificationService {
         return emails;
     }
 
-    /**
-     * Отправить уведомление менеджерам о предстоящем платеже
-     */
     public void sendUpcomingPaymentNotification(PaymentSchedule schedule) {
         List<String> managerEmails = getManagerEmails();
 
@@ -90,9 +79,6 @@ public class NotificationService {
                     managerEmails.size(), contract.getContractNumber());
     }
 
-    /**
-     * Отправить уведомление менеджерам о просроченном платеже
-     */
     public void sendOverduePaymentNotification(PaymentSchedule schedule) {
         List<String> managerEmails = getManagerEmails();
 
@@ -110,10 +96,6 @@ public class NotificationService {
                     managerEmails.size(), contract.getContractNumber());
     }
 
-    /**
-     * Автоматическая проверка и отправка уведомлений о предстоящих платежах
-     * Запускается каждый день в 9:00
-     */
     @Scheduled(cron = "0 0 9 * * ?")
     @Transactional
     public void checkUpcomingPayments() {
@@ -140,10 +122,6 @@ public class NotificationService {
         logger.info("Отправлено {} уведомлений о предстоящих платежах", sentCount);
     }
 
-    /**
-     * Автоматическая проверка и отправка уведомлений о просроченных платежах
-     * Запускается каждый день в 10:00
-     */
     @Scheduled(cron = "0 0 10 * * ?")
     @Transactional
     public void checkOverduePayments() {
@@ -164,9 +142,6 @@ public class NotificationService {
         logger.info("Отправлено {} уведомлений о просроченных платежах", sentCount);
     }
 
-    /**
-     * Формирование текста письма о предстоящем платеже для менеджеров
-     */
     private String buildUpcomingPaymentEmailForManagers(PaymentSchedule schedule) {
         Contract contract = schedule.getContract();
         String clientName = contract.getClient().getFullName();
@@ -203,9 +178,6 @@ public class NotificationService {
         );
     }
 
-    /**
-     * Формирование текста письма о просроченном платеже для менеджеров
-     */
     private String buildOverduePaymentEmailForManagers(PaymentSchedule schedule) {
         Contract contract = schedule.getContract();
         String clientName = contract.getClient().getFullName();

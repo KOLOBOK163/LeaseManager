@@ -1,9 +1,8 @@
-package com.LeaseManager.Service;
+package com.LeaseManager.Service.Client;
 
 import com.LeaseManager.Dto.Client.ClientResponse;
 import com.LeaseManager.Dto.Client.CreateClientRequest;
 import com.LeaseManager.Dto.Client.UpdateClientRequest;
-import com.LeaseManager.Entity.Client;
 
 import java.util.List;
 

@@ -15,9 +15,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Сервис для управления инцидентами с оборудованием
- */
 @Service
 public class IncidentService {
 
@@ -39,9 +36,6 @@ public class IncidentService {
         this.auditService = auditService;
     }
 
-    /**
-     * Создать инцидент
-     */
     @Transactional
     public IncidentResponse createIncident(CreateIncidentRequest request, Long userId) {
         Equipment equipment = equipmentRepository.findById(request.getEquipmentId())
@@ -73,7 +67,6 @@ public class IncidentService {
                 .reportedBy(reporter)
                 .build();
 
-        // Автоматически меняем статус оборудования
         if (incident.isCritical()) {
             equipment.setStatus(EquipmentStatus.WRITE_OFF);
         } else {
@@ -81,7 +74,6 @@ public class IncidentService {
         }
         equipmentRepository.save(equipment);
 
-        // Если инцидент критический и есть договор, приостанавливаем его
         if (incident.isCritical() && contract != null && contract.getStatus() == Contract.ContractStatus.ACTIVE) {
             contract.setStatus(Contract.ContractStatus.SUSPENDED);
             contractRepository.save(contract);
@@ -89,16 +81,12 @@ public class IncidentService {
 
         EquipmentIncident saved = incidentRepository.save(incident);
 
-        // Аудит
         auditService.log(userId, AuditLog.AuditAction.CREATE, "EquipmentIncident", saved.getId(),
                 "Создан инцидент: " + request.getIncidentType() + " для оборудования " + equipment.getName(), null);
 
         return mapToResponse(saved);
     }
 
-    /**
-     * Обновить инцидент
-     */
     @Transactional
     public IncidentResponse updateIncident(Long incidentId, UpdateIncidentRequest request, Long userId) {
         EquipmentIncident incident = incidentRepository.findById(incidentId)
@@ -120,7 +108,6 @@ public class IncidentService {
             EquipmentIncident.IncidentStatus oldStatus = incident.getStatus();
             incident.setStatus(request.getStatus());
 
-            // Если инцидент решён, обновляем дату и возвращаем оборудование
             if (request.getStatus() == EquipmentIncident.IncidentStatus.RESOLVED ||
                 request.getStatus() == EquipmentIncident.IncidentStatus.CLOSED) {
 
@@ -131,13 +118,11 @@ public class IncidentService {
                     incident.setResolvedBy(resolver);
                 }
 
-                // Возвращаем оборудование в статус AVAILABLE или LEASED
                 Equipment equipment = incident.getEquipment();
                 if (incident.getContract() != null &&
                     incident.getContract().getStatus() == Contract.ContractStatus.ACTIVE) {
                     equipment.setStatus(EquipmentStatus.LEASED);
 
-                    // Возобновляем договор если он был приостановлен
                     if (incident.getContract().getStatus() == Contract.ContractStatus.SUSPENDED) {
                         incident.getContract().setStatus(Contract.ContractStatus.ACTIVE);
                         contractRepository.save(incident.getContract());
@@ -163,16 +148,12 @@ public class IncidentService {
 
         EquipmentIncident updated = incidentRepository.save(incident);
 
-        // Аудит
         auditService.log(userId, AuditLog.AuditAction.UPDATE, "EquipmentIncident", updated.getId(),
                 "Обновлён инцидент #" + incidentId, null);
 
         return mapToResponse(updated);
     }
 
-    /**
-     * Получить инцидент по ID
-     */
     @Transactional(readOnly = true)
     public IncidentResponse getIncidentById(Long incidentId) {
         EquipmentIncident incident = incidentRepository.findById(incidentId)
@@ -180,9 +161,6 @@ public class IncidentService {
         return mapToResponse(incident);
     }
 
-    /**
-     * Получить все инциденты
-     */
     @Transactional(readOnly = true)
     public List<IncidentResponse> getAllIncidents() {
         return incidentRepository.findAll().stream()
@@ -190,9 +168,6 @@ public class IncidentService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Получить инциденты по оборудованию
-     */
     @Transactional(readOnly = true)
     public List<IncidentResponse> getIncidentsByEquipment(Long equipmentId) {
         return incidentRepository.findByEquipmentId(equipmentId).stream()
@@ -200,9 +175,6 @@ public class IncidentService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Получить инциденты по договору
-     */
     @Transactional(readOnly = true)
     public List<IncidentResponse> getIncidentsByContract(Long contractId) {
         return incidentRepository.findByContractId(contractId).stream()
@@ -210,9 +182,6 @@ public class IncidentService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Получить активные инциденты
-     */
     @Transactional(readOnly = true)
     public List<IncidentResponse> getActiveIncidents() {
         return incidentRepository.findActiveIncidents().stream()
@@ -220,9 +189,6 @@ public class IncidentService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Получить инциденты, требующие компенсации
-     */
     @Transactional(readOnly = true)
     public List<IncidentResponse> getIncidentsRequiringCompensation() {
         return incidentRepository.findIncidentsRequiringCompensation().stream()
@@ -230,9 +196,6 @@ public class IncidentService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Рассчитать компенсацию при повреждении по вине лизингополучателя
-     */
     public BigDecimal calculateCompensation(Long incidentId) {
         EquipmentIncident incident = incidentRepository.findById(incidentId)
                 .orElseThrow(() -> new EntityNotFoundException("Инцидент не найден с id: " + incidentId));
@@ -244,7 +207,6 @@ public class IncidentService {
         Contract contract = incident.getContract();
         Equipment equipment = incident.getEquipment();
 
-        // Первоначальная стоимость
         BigDecimal initialCost = equipment.getPrice();
 
         // Рассчитываем амортизацию
@@ -275,9 +237,6 @@ public class IncidentService {
         return totalCompensation.setScale(2, BigDecimal.ROUND_HALF_UP);
     }
 
-    /**
-     * Удалить инцидент
-     */
     @Transactional
     public void deleteIncident(Long incidentId, Long userId) {
         if (!incidentRepository.existsById(incidentId)) {
@@ -286,14 +245,10 @@ public class IncidentService {
 
         incidentRepository.deleteById(incidentId);
 
-        // Аудит
         auditService.log(userId, AuditLog.AuditAction.DELETE, "EquipmentIncident", incidentId,
                 "Удалён инцидент #" + incidentId, null);
     }
 
-    /**
-     * Маппинг в DTO
-     */
     private IncidentResponse mapToResponse(EquipmentIncident incident) {
         return IncidentResponse.builder()
                 .id(incident.getId())

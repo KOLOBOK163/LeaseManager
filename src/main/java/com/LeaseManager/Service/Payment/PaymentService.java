@@ -1,4 +1,4 @@
-package com.LeaseManager.Service;
+package com.LeaseManager.Service.Payment;
 
 import com.LeaseManager.Dto.Payment.RegisterPaymentRequest;
 import com.LeaseManager.Dto.Payment.PaymentResponse;
