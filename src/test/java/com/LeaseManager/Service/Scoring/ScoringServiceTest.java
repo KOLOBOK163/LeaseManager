@@ -18,9 +18,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-/**
- * Тесты для сервиса скоринга
- */
 @ExtendWith(MockitoExtension.class)
 class ScoringServiceTest {
 
