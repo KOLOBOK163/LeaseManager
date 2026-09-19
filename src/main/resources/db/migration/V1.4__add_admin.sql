@@ -1,0 +1,2 @@
+INSERT INTO public.users(username, password, role, full_name, email, active)
+VALUES ('admin', '$2a$10$8Y2C.LaFeO3AILGmgHSbKuY8Ahl.PfZuZnHWfPan5nKrZkpyDRYwK', 'ADMIN', 'System Administrator', 'admin@leasemanager.local', true)
