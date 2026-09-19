@@ -1,6 +1,5 @@
 package com.LeaseManager.Dto.Auth;
 
-import com.LeaseManager.Entity.UserRole;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -24,5 +23,11 @@ public class RegisterRequest {
     @Size(max = 100, message = "Email должен быть не более 100 символов")
     private String email;
 
-    private UserRole role = UserRole.MANAGER;
+    @NotBlank(message = "Имя клиента не должно быть пустым")
+    private String fullName;
+
+    @NotBlank(message = "Номер телефона не должен быть пустым")
+    @Size(max = 20, message = "Номер телефона до 20 символов")
+    private String phoneNumber;
+
 }

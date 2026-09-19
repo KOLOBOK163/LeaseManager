@@ -73,7 +73,13 @@ const handleSubmit = async () => {
     })
     
     authStore.setAuth(response)
-    router.push('/dashboard')
+    
+    // Перенаправление в зависимости от роли
+    if (response.role === 'CLIENT') {
+      router.push('/client-portal')
+    } else {
+      router.push('/dashboard')
+    }
   } catch (err: unknown) {
     if (err instanceof Error) {
       error.value = err.message || 'Ошибка при входе'

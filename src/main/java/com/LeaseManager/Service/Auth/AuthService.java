@@ -3,8 +3,10 @@ package com.LeaseManager.Service.Auth;
 import com.LeaseManager.Dto.Auth.AuthResponse;
 import com.LeaseManager.Dto.Auth.LoginRequest;
 import com.LeaseManager.Dto.Auth.RegisterRequest;
+import com.LeaseManager.Entity.Client;
 import com.LeaseManager.Entity.User;
 import com.LeaseManager.Entity.UserRole;
+import com.LeaseManager.Repository.ClientRepository;
 import com.LeaseManager.Repository.UserRepository;
 import com.LeaseManager.Security.JWT.JwtUtil;
 import com.LeaseManager.Security.UserDetailsImpl;
@@ -24,15 +26,17 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final ClientRepository clientRepository;
 
     public AuthService(AuthenticationManager authenticationManager,
                        UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
-                       JwtUtil jwtUtil) {
+                       JwtUtil jwtUtil, ClientRepository clientRepository) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
+        this.clientRepository = clientRepository;
     }
 
     @Transactional
@@ -45,11 +49,21 @@ public class AuthService {
             throw new RuntimeException("Пользователь с таким email уже существует");
         }
 
+        Client client = Client.builder()
+                .fullName(request.getFullName())
+                .email(request.getEmail())
+                .phoneNumber(request.getPhoneNumber())
+                .clientType(Client.ClientType.INDIVIDUAL)
+                .build();
+
+        Client savedClient = clientRepository.save(client);
+
         User user = User.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .email(request.getEmail())
-                .role(request.getRole() != null ? request.getRole() : UserRole.MANAGER)
+                .role(UserRole.CLIENT)
+                .clientId(savedClient)
                 .build();
 
         User savedUser = userRepository.save(user);
@@ -68,19 +82,12 @@ public class AuthService {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
 
         return generateAuthResponse(user);
     }
 
-    @Transactional
-    public User getUserById(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден с id: " + userId));
-    }
 
     private AuthResponse generateAuthResponse(User user) {
         UserDetailsImpl userDetails = UserDetailsImpl.build(user);
