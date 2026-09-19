@@ -5,6 +5,30 @@
       
       <form @submit.prevent="handleSubmit">
         <div class="mb-3">
+          <label for="fullName" class="form-label">Полное имя</label>
+          <input
+            type="text"
+            class="form-control"
+            id="fullName"
+            v-model="form.fullName"
+            placeholder="Иван Иванов"
+            required
+          />
+        </div>
+
+        <div class="mb-3">
+          <label for="phoneNumber" class="form-label">Телефон</label>
+          <input
+            type="tel"
+            class="form-control"
+            id="phoneNumber"
+            v-model="form.phoneNumber"
+            placeholder="+7 (999) 123-45-67"
+            required
+          />
+        </div>
+
+        <div class="mb-3">
           <label for="username" class="form-label">Имя пользователя</label>
           <input
             type="text"
@@ -24,7 +48,7 @@
             class="form-control"
             id="email"
             v-model="form.email"
-            placeholder="Введите email"
+            placeholder="example@mail.com"
             required
           />
         </div>
@@ -36,7 +60,7 @@
             class="form-control"
             id="password"
             v-model="form.password"
-            placeholder="Введите пароль"
+            placeholder="Минимум 6 символов"
             required
             minlength="6"
           />
@@ -49,7 +73,7 @@
             class="form-control"
             id="confirmPassword"
             v-model="form.confirmPassword"
-            placeholder="Подтвердите пароль"
+            placeholder="Повторите пароль"
             required
           />
         </div>
@@ -81,6 +105,8 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 const form = reactive({
+  fullName: '',
+  phoneNumber: '',
   username: '',
   email: '',
   password: '',
@@ -109,11 +135,13 @@ const handleSubmit = async () => {
     const response = await authApi.register({
       username: form.username,
       email: form.email,
-      password: form.password
+      password: form.password,
+      fullName: form.fullName,
+      phoneNumber: form.phoneNumber
     })
 
     authStore.setAuth(response)
-    router.push('/dashboard')
+    router.push('/client-portal')
   } catch (err: unknown) {
     if (err instanceof Error) {
       error.value = err.message || 'Ошибка при регистрации'

@@ -28,4 +28,9 @@ public class User {
 
     @Builder.Default
     private Boolean active = true;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_id")
+    private Client clientId;
+
 }
