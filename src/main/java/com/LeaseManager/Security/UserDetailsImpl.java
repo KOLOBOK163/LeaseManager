@@ -14,14 +14,17 @@ public class UserDetailsImpl implements UserDetails {
 
     private final Long id;
 
+    private final Long clientId;
+
     private final String username;
 
     private final String password;
 
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public UserDetailsImpl(Long id, String username, String password, Collection<? extends GrantedAuthority> authorities) {
+    public UserDetailsImpl(Long id,Long clientId, String username, String password, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
+        this.clientId = clientId;
         this.username = username;
         this.password = password;
         this.authorities = authorities;
@@ -31,6 +34,7 @@ public class UserDetailsImpl implements UserDetails {
         GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getRole().name());
         return new UserDetailsImpl(
                 user.getId(),
+                user.getClientId() != null ? user.getClientId().getId() : null,
                 user.getUsername(),
                 user.getPassword(),
                 Collections.singletonList(authority)
