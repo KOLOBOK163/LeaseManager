@@ -1,6 +1,7 @@
 package com.LeaseManager.Repository;
 
 import com.LeaseManager.Entity.Contract;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -34,4 +35,8 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
            "OR LOWER(e.name) LIKE LOWER(CONCAT('%', :searchQuery, '%')) " +
            "ORDER BY c.createdDate DESC")
     List<Contract> searchContracts(@Param("searchQuery") String searchQuery);
+
+    @EntityGraph(attributePaths = "equipment.category")
+    @Query("SELECT c FROM Contract c WHERE c.client.id = :clientId ORDER BY c.createdDate DESC")
+    List<Contract> findContractByClientIdWithEquipment(@Param("clientId") Long id);
 }
